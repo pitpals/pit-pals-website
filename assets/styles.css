@@ -223,6 +223,36 @@ h1 span,
   justify-content: center;
 }
 
+.app-store-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  background: var(--accent-dark);
+}
+
+.app-store-link:hover {
+  background: var(--footer);
+}
+
+.app-preview {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  box-shadow: 0 14px 34px rgba(63, 42, 32, 0.1);
+}
+
+.hero-preview {
+  max-width: 360px;
+}
+
+.feature-preview {
+  max-width: 360px;
+  margin-bottom: 1.75rem;
+}
+
 .phone-frame {
   width: min(100%, 21rem);
   border: 0.58rem solid #14110f;
