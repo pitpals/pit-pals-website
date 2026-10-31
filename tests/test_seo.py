@@ -152,7 +152,7 @@ class SEOTests(unittest.TestCase):
         self.assertIn("id=\"cut-carousel\"", tool_html)
         self.assertNotIn("Game", tool_html)
         self.assertIn("@media (max-width: 600px)", css)
-        self.assertTrue((ROOT / "assets/images/calculator/PP_Cut_Other.png").is_file())
+        self.assertFalse((ROOT / "assets/images/calculator/PP_Cut_Other.png").exists())
         self.assertEqual(len(list((ROOT / "assets/images/calculator").glob("PP_Animal_*.png"))), 5)
         for route, path in PAGES.items():
             html = path.read_text()

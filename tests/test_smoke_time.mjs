@@ -7,8 +7,9 @@ const calc = (animal, cut, weight, temperature = 225) => calculateSmokeTime({ani
 test('five requested animals and current named cuts have profiles', () => {
   assert.deepEqual(ANIMALS, ['Beef', 'Pork', 'Poultry', 'Fish', 'Lamb']);
   assert.equal(CUTS.Beef.includes('Ribeye'), false);
+  assert.equal(Object.values(CUTS).flat().length, 35);
   for (const animal of ANIMALS) for (const cut of CUTS[animal]) {
-    if (cut === 'Other') continue;
+    assert.notEqual(cut, 'Other');
     const profile = getProfile(animal, cut);
     assert.ok(profile, `${animal}: ${cut}`);
     assert.ok(profile.sources.length > 0);
@@ -61,7 +62,7 @@ test('poultry, fish, pork and lamb guidance remains cut-specific and safe', () =
 
 test('invalid and unsupported inputs are clear', () => {
   assert.equal(calc('Game', 'Venison', 3).status, 'invalid');
-  assert.equal(calc('Beef', 'Other', 3).status, 'unavailable');
+  assert.equal(calc('Beef', 'Other', 3).status, 'invalid');
   assert.equal(calc('Beef', 'Brisket Flat', 0).status, 'invalid');
   assert.equal(calc('Beef', 'Brisket Flat', 'bad').status, 'invalid');
   assert.equal(calc('Beef', 'Brisket Flat', 6, 300).status, 'invalid');

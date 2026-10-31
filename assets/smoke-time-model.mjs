@@ -11,11 +11,11 @@ export const FOOD_SAFETY = Object.freeze({
 
 const APP_CUTS = Object.freeze({
   // The four traditionally grilled steak cuts are omitted from this smoker-only tool.
-  Beef: ['Back Ribs', 'Brisket Flat', 'Brisket Point', 'Chuck Roast', 'Eye of Round', 'Packer Brisket', 'Plate Ribs', 'Short Ribs', 'Other'],
-  Pork: ['Baby Back Ribs', 'Spare Ribs', 'Ham', 'Pork Belly', 'Pork Butt', 'Pork Shoulder', 'Tenderloin', 'Other'],
-  Poultry: ['Chicken Breast', 'Chicken Thighs', 'Chicken Wings', 'Whole Chicken', 'Turkey Breast', 'Turkey Thighs', 'Turkey Wings', 'Whole Turkey', 'Duck Breast', 'Duck Thighs', 'Duck Wings', 'Whole Duck', 'Other'],
-  Fish: ['Catfish', 'Haddock', 'Salmon', 'Tilapia', 'Trout', 'Other'],
-  Lamb: ['Leg of Lamb', 'Rack of Lamb', 'Shoulder', 'Other']
+  Beef: ['Back Ribs', 'Brisket Flat', 'Brisket Point', 'Chuck Roast', 'Eye of Round', 'Packer Brisket', 'Plate Ribs', 'Short Ribs'],
+  Pork: ['Baby Back Ribs', 'Spare Ribs', 'Ham', 'Pork Belly', 'Pork Butt', 'Pork Shoulder', 'Tenderloin'],
+  Poultry: ['Chicken Breast', 'Chicken Thighs', 'Chicken Wings', 'Whole Chicken', 'Turkey Breast', 'Turkey Thighs', 'Turkey Wings', 'Whole Turkey', 'Duck Breast', 'Duck Thighs', 'Duck Wings', 'Whole Duck'],
+  Fish: ['Catfish', 'Haddock', 'Salmon', 'Tilapia', 'Trout'],
+  Lamb: ['Leg of Lamb', 'Rack of Lamb', 'Shoulder']
 });
 
 export const ANIMALS = Object.freeze(Object.keys(APP_CUTS));
@@ -133,14 +133,6 @@ for (const animalProfiles of Object.values(PROFILES)) {
   for (const profile of Object.values(animalProfiles)) profile.temperatureRange = SUPPORTED_PIT_RANGE;
 }
 
-const SPECIAL_UNAVAILABLE = {
-  'Pork|Ham': 'Fresh ham and fully cooked ham being reheated have different cooking methods and safety targets. Choose a recipe for the exact product.',
-  'Lamb|Shoulder': 'Pulled lamb shoulder often needs a hotter finish; a single steady smoker temperature misses that method.',
-  'Lamb|Rack of Lamb': 'Rack timing depends on thickness and often includes a high-heat sear; weight and one smoker temperature are insufficient.',
-  'Beef|Chuck Roast': 'Chuck roast methods vary between direct smoking and a covered braise. Those finish at very different times.',
-  'Beef|Eye of Round': 'This lean roast needs a specified doneness and thickness; weight alone gives a poor estimate.'
-};
-
 export function getProfile(animal, cut) {
   return PROFILES[animal]?.[cut] ?? null;
 }
@@ -152,10 +144,7 @@ export function getCutInfo(animal, cut) {
     animal, cut, profile,
     safety: animal === 'Pork' && cut === 'Ham'
       ? 'Fully cooked ham: reheat to 165°F, or 140°F if packaged in a USDA-inspected plant. Fresh ham: 145°F plus a 3-minute rest. Check the package.'
-      : FOOD_SAFETY[animal.toLowerCase()],
-    unavailableReason: profile ? null : (SPECIAL_UNAVAILABLE[`${animal}|${cut}`] || (cut === 'Other'
-      ? 'A custom cut needs its shape and preparation before a responsible time can be estimated.'
-      : 'Thickness, cut shape, or cooking method varies too much for a reliable estimate from these four inputs.'))
+      : FOOD_SAFETY[animal.toLowerCase()]
   };
 }
 
@@ -187,7 +176,7 @@ export function calculateSmokeTime({animal, cut, weight, temperature}) {
   const degrees = Number(temperature);
   if (weight === '' || !Number.isFinite(pounds) || pounds <= 0) return {status: 'invalid', message: 'Enter a weight greater than zero in pounds.'};
   if (temperature === '' || !Number.isFinite(degrees) || degrees < SUPPORTED_PIT_RANGE[0] || degrees > SUPPORTED_PIT_RANGE[1]) return {status: 'invalid', message: 'Enter a smoker temperature from 225°F to 275°F.'};
-  if (!info.profile) return {status: 'unavailable', ...info, message: info.unavailableReason};
+  if (!info.profile) return {status: 'invalid', message: 'This cut has no estimate configured.'};
   const profile = info.profile;
   if (pounds < profile.weight[0] || pounds > profile.weight[1]) return {status: 'unavailable', ...info, message: `This profile covers ${profile.weight[0]}–${profile.weight[1]} lb. Outside that range, use a cut-specific recipe and thermometer.`};
   const base = minutesAtTemperature(profile.anchors, degrees);

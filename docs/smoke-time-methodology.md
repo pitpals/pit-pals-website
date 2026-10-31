@@ -1,6 +1,6 @@
 # Smoke time calculator methodology
 
-This page uses the current five-animal Pit Pals New Smoke cut names. Game is intentionally excluded. Filet Mignon, New York Strip, Ribeye, and T-Bone are omitted because they are primarily grilled steaks and thickness plus a sear would matter more than the four available inputs. Each named cut below has its own profile or explicit comparison profile. “Other” has no defined shape or cooking method and cannot yield a responsible numeric estimate.
+This page uses five Pit Pals New Smoke animal categories and their named cuts. Game is intentionally excluded. Filet Mignon, New York Strip, Ribeye, and T-Bone are omitted because they are primarily grilled steaks and thickness plus a sear would matter more than the four available inputs. The free-form “Other” choice is also omitted because it supplies no cut shape or cooking method. Each listed cut has its own profile or an explicit comparison profile.
 
 ## How the number is made
 
@@ -23,7 +23,6 @@ This page uses the current five-animal Pit Pals New Smoke cut names. Game is int
 | Beef | Packer Brisket | Yes | 8–18 lb; 13 lb reference | Whole trimmed packer with flat and point; wrap when the bark is set.  | [brisket](https://www.thermoworks.com/blogs/thermoblog/smoked-brisket-a-how-to-primer), [brisketTraeger](https://www.traeger.com/learn/how-to-smoked-brisket), [point](https://www.traeger.com/learn/brisket-flat-vs-point) |
 | Beef | Plate Ribs | Yes | 4–10 lb; 7 lb reference | One meaty plate-rib rack, wrapped after about 5 hours at 225°F.  | [plateRibs](https://www.traeger.com/cuts/beef/plate-short-ribs), [shortRibs](https://www.thermoworks.com/blogs/thermoblog/smoked-beef-short-ribs-temperature-is-a-recipe-for-success) |
 | Beef | Short Ribs | Yes | 2–7 lb; 4 lb reference | English-cut bone-in chuck short ribs, not thin flanken slices.  | [shortRibs](https://www.thermoworks.com/blogs/thermoblog/smoked-beef-short-ribs-temperature-is-a-recipe-for-success) |
-| Beef | Other | No | — | A custom cut needs its shape and preparation before a responsible time can be estimated. | — |
 | Pork | Baby Back Ribs | Yes | 1.5–4 lb; 2.5 lb reference | One baby-back rack, wrapped after the bark sets.  | [ribs](https://www.traeger.com/learn/types-pork-ribs) |
 | Pork | Spare Ribs | Yes | 2.5–6 lb; 4 lb reference | One spare-rib rack, wrapped after the bark sets.  | [ribs](https://www.traeger.com/learn/types-pork-ribs) |
 | Pork | Ham | Yes | 5–10 lb; 7 lb reference | One fully cooked, USDA-inspected packaged half ham reheated at 225°F, not a fresh raw ham. (direct basis) | [ham](https://www.traeger.com/learn/how-to-cook-ham) |
@@ -31,7 +30,6 @@ This page uses the current five-animal Pit Pals New Smoke cut names. Game is int
 | Pork | Pork Butt | Yes | 5–12 lb; 8 lb reference | One whole butt for pulled pork; wrap after the bark sets.  | [porkButt](https://www.thermoworks.com/blogs/thermoblog/how-to-cook-bbq-pork-butt), [porkTraeger](https://www.traeger.com/learn/pulled-pork) |
 | Pork | Pork Shoulder | Yes | 5–12 lb; 8 lb reference | One full shoulder/picnic roast for pulled pork; wrap after the bark sets.  | [porkButt](https://www.thermoworks.com/blogs/thermoblog/how-to-cook-bbq-pork-butt), [porkTraeger](https://www.traeger.com/learn/pulled-pork) |
 | Pork | Tenderloin | Yes | 0.75–2 lb; 1.25 lb reference | One intact pork tenderloin, not a thicker pork loin roast.  | [tenderloin](https://www.traeger.com/pork-tenderloin) |
-| Pork | Other | No | — | A custom cut needs its shape and preparation before a responsible time can be estimated. | — |
 | Poultry | Chicken Breast | Yes | 0.3–1.25 lb; 0.65 lb reference | One ordinary boneless breast, roughly 1–1½ inches thick; weight is per piece.  | [chickenBreast](https://www.traeger.com/recipes/smoked-chicken-breast) |
 | Poultry | Chicken Thighs | Yes | 0.25–1 lb; 0.5 lb reference | One bone-in, skin-on chicken thigh, roughly 1–1½ inches thick; weight is per thigh. (comparison basis) | [chicken](https://www.traeger.com/learn/how-to-smoke-whole-chicken) |
 | Poultry | Chicken Wings | Yes | 0.15–0.6 lb; 0.3 lb reference | One ordinary whole wing or separated flat/drumette, single layer on the grate; weight is per wing.  | [chickenWings](https://www.traeger.com/learn/smoked-chicken-wings) |
@@ -44,17 +42,14 @@ This page uses the current five-animal Pit Pals New Smoke cut names. Game is int
 | Poultry | Duck Thighs | Yes | 0.3–1 lb; 0.6 lb reference | One bone-in domestic duck thigh hot-smoked at 225°F. (comparison basis) | [duck](https://www.traeger.com/recipes/roast-duck), [chicken](https://www.traeger.com/learn/how-to-smoke-whole-chicken) |
 | Poultry | Duck Wings | Yes | 0.15–0.6 lb; 0.3 lb reference | One domestic duck wing, single layer on the grate at 225°F; weight is per wing. (comparison basis) | [duck](https://www.traeger.com/recipes/roast-duck), [chickenWings](https://www.traeger.com/learn/smoked-chicken-wings) |
 | Poultry | Whole Duck | Yes | 4–7 lb; 5.5 lb reference | One domestic whole duck, unstuffed, skin pricked for fat rendering. (adapted basis) | [duck](https://www.traeger.com/recipes/roast-duck) |
-| Poultry | Other | No | — | A custom cut needs its shape and preparation before a responsible time can be estimated. | — |
 | Fish | Catfish | Yes | 0.3–2 lb; 1 lb reference | One catfish fillet about ¾–1 inch thick, hot-smoked at 225°F; not a whole fish. (comparison basis) | [fishGeneral](https://www.traeger.com/grill-types/bbq-smokers) |
 | Fish | Haddock | Yes | 0.25–1.5 lb; 0.75 lb reference | One thin haddock fillet about ½–¾ inch thick, hot-smoked at 225°F. (comparison basis) | [fishGeneral](https://www.traeger.com/grill-types/bbq-smokers) |
 | Fish | Salmon | Yes | 0.5–3 lb; 1.5 lb reference | One cured, air-dried fillet about 1–1½ inches thick, hot-smoked at 225°F.  | [salmon](https://www.traeger.com/learn/how-to-smoke-salmon) |
 | Fish | Tilapia | Yes | 0.2–1.25 lb; 0.6 lb reference | One thin tilapia fillet about ½–¾ inch thick, hot-smoked at 225°F. (comparison basis) | [fishGeneral](https://www.traeger.com/grill-types/bbq-smokers) |
 | Fish | Trout | Yes | 0.3–2 lb; 1 lb reference | One ordinary trout fillet, about ½–1 inch thick, hot-smoked at 225°F.  | [trout](https://www.traeger.com/recipes/smoked-trout) |
-| Fish | Other | No | — | A custom cut needs its shape and preparation before a responsible time can be estimated. | — |
 | Lamb | Leg of Lamb | Yes | 5–7 lb; 6 lb reference | One boneless leg, about 5–7 lb, cooked at 225°F for sliced medium lamb.  | [lambLeg](https://heygrillhey.com/smoked-leg-of-lamb/) |
 | Lamb | Rack of Lamb | Yes | 1–3 lb; 2 lb reference | One frenched rack, roughly 1½–2 inches thick, at 250°F without a separate sear. (adapted basis) | [lambRack](https://www.traeger.com/recipes/smoked-rack-of-lamb) |
 | Lamb | Shoulder | Yes | 4–10 lb; 8 lb reference | One whole bone-in lamb shoulder at a steady 250°F for pulled lamb, without a hot finishing phase. (adapted basis) | [lambShoulder](https://blog.thermoworks.com/smoked-lamb-shoulder/) |
-| Lamb | Other | No | — | A custom cut needs its shape and preparation before a responsible time can be estimated. | — |
 
 ## Important source differences and limitations
 

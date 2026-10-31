@@ -27,7 +27,6 @@ const wrap = (index, length) => (index + length) % length;
 const currentAnimal = () => ANIMALS[animalIndex];
 const currentCut = () => CUTS[currentAnimal()][cutIndex];
 const artwork = (kind, animal, cut) => {
-  if (cut === 'Other') return '../assets/images/calculator/PP_Cut_Other.png';
   const name = kind === 'animal' ? `PP_Animal_${animal}` : `PP_Cut_${animal}_${cut.replace(/[^a-z0-9]/gi, '')}`;
   return `../assets/images/calculator/${name}.png`;
 };
@@ -48,20 +47,13 @@ function renderPicker(kind) {
     button.setAttribute('aria-pressed', offset === 0 ? 'true' : 'false');
     button.setAttribute('aria-label', `${label}${offset === 0 ? ', selected' : ''}`);
     const imagePath = kind === 'animal' ? artwork('animal', label) : artwork('cut', currentAnimal(), label);
-    if (imagePath) {
-      const image = document.createElement('img');
-      image.src = imagePath;
-      image.alt = '';
-      image.width = 360;
-      image.height = 360;
-      image.loading = 'lazy';
-      button.append(image);
-    } else {
-      const other = document.createElement('span');
-      other.className = 'carousel-other';
-      other.textContent = '?';
-      button.append(other);
-    }
+    const image = document.createElement('img');
+    image.src = imagePath;
+    image.alt = '';
+    image.width = 360;
+    image.height = 360;
+    image.loading = 'lazy';
+    button.append(image);
     const title = document.createElement('strong');
     title.textContent = label;
     button.append(title);

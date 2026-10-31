@@ -19,7 +19,6 @@
 .carousel-tile.is-selected { border-color: var(--accent); background: #fbe7d9; box-shadow: inset 0 0 0 1px rgba(217,93,34,.12); }
 .carousel-tile img { width: min(100%, 106px); height: 95px; object-fit: contain; mix-blend-mode: multiply; }
 .carousel-tile strong { display: block; min-height: 2.5rem; align-content: center; text-align: center; font-size: .82rem; line-height: 1.25; }
-.carousel-other { display: grid; width: 95px; height: 95px; place-items: center; color: var(--accent-dark); font-family: Georgia,serif; font-size: 3.5rem; }
 .carousel-count { margin: .45rem 0 0; color: var(--muted); text-align: center; font-size: .82rem; }
 .calculator-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1.2rem; margin-top: 1.6rem; }
 .calculator-fields input, .calculator-fields select { width: 100%; min-height: 52px; border: 1px solid #bba996; border-radius: .6rem; background: #fff; padding: .65rem .8rem; color: var(--text); font: inherit; }
@@ -54,7 +53,7 @@
   .carousel-arrow { width: 38px; height: 50px; }
   .carousel-window { gap: .15rem; }
   .carousel-tile { min-height: 125px; padding: .3rem .1rem; }
-  .carousel-tile img, .carousel-other { height: 70px; }
+  .carousel-tile img { height: 70px; }
   .carousel-tile img { width: min(100%,80px); }
   .carousel-tile strong { font-size: .72rem; }
   .calculator-fields { grid-template-columns: 1fr; gap: 1rem; }

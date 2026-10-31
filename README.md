@@ -28,8 +28,8 @@ proportions on desktop and mobile. `social-header.jpg` is the link-preview image
 The original full-resolution PNG artwork is kept outside this repository.
 The calculator's animal and cut illustrations are resized copies of the
 current iOS app asset catalog; the app repository was not changed.
-The [calculator methodology](docs/smoke-time-methodology.md) lists every cut,
-its assumptions, source links, and cases that need more detail.
+The [calculator methodology](docs/smoke-time-methodology.md) lists every
+supported cut, its assumptions, and source links.
 
 Cloudflare Pages deploys the `main` branch automatically to https://pitpals.app.
 There is no build step. For local preview, run `python3 -m http.server 8765`
