@@ -1,0 +1,7 @@
+# Keep the custom production domain indexable. Cloudflare Pages also sends
+# noindex by default on previews; these rules cover Pages aliases explicitly.
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex
