@@ -169,6 +169,11 @@ form.addEventListener('submit', event => {
     heading.textContent = 'Key considerations that could change the estimate';
     details.append(heading);
     const list = document.createElement('ul');
+    if (calculation.weightExtrapolated) {
+      const item = document.createElement('li');
+      item.textContent = 'This weight is above the usual range for this brisket profile. The time is extrapolated and could vary by several hours.';
+      list.append(item);
+    }
     for (const note of calculation.profile.notes) {
       const item = document.createElement('li');
       item.textContent = note;

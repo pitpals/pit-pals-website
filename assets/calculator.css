@@ -6,7 +6,6 @@
 .calculator-shell { border: 1px solid var(--border); border-radius: 1.15rem; background: var(--surface); padding: clamp(1.2rem, 3.5vw, 2.6rem); box-shadow: 0 15px 40px rgba(63,42,32,.07); }
 .calculator-shell-heading { border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1.6rem; }
 .calculator-shell-heading h2 { font-size: clamp(1.7rem, 3vw, 2.45rem); }
-.calculator-shell-heading p { margin: .4rem 0 0; color: var(--muted); }
 .calculator-shell fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
 .calculator-shell legend, .calculator-fields label { display: block; width: 100%; margin-bottom: .7rem; color: var(--text); font-weight: 850; font-size: .98rem; }
 .cut-fieldset { margin-top: 1.5rem !important; }
@@ -26,7 +25,7 @@
 .calculator-fields #temperature:not([hidden]) { display: block; margin-top: .55rem; }
 .unit { color: var(--muted); font-weight: 550; }
 .form-hint { margin: .95rem 0 1.25rem; color: var(--muted); font-size: .9rem; }
-.calculate-button { min-width: 15rem; cursor: pointer; }
+.calculate-button { min-width: 15rem; margin-top: 1.25rem; cursor: pointer; }
 .calculate-button:hover { background: var(--accent-dark); }
 .calculator-result { scroll-margin-top: 6rem; margin-top: 2rem; border: 1px solid rgba(217,93,34,.25); border-radius: 1rem; background: #f9efe4; padding: clamp(1.25rem, 3vw, 2rem); }
 .calculator-result[hidden] { display: none; }

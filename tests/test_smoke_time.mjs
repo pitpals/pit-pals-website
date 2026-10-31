@@ -15,6 +15,9 @@ test('five requested animals and current named cuts have profiles', () => {
     assert.ok(profile.sources.length > 0);
     assert.ok(profile.sources.every(key => SOURCES[key]));
     assert.deepEqual(profile.temperatureRange, [225, 275]);
+    for (const copy of [profile.assumption, profile.finish, profile.rest, ...profile.notes]) {
+      assert.doesNotMatch(copy, /[;—]/, `${animal}: ${cut}`);
+    }
     assert.equal(calc(animal, cut, profile.referenceWeight, 250).status, 'estimated', `${animal}: ${cut}`);
   }
 });
@@ -41,6 +44,19 @@ test('weight and smoker temperature move a long cook appropriately', () => {
   assert.ok(calc('Beef', 'Packer Brisket', 13, 225).lowMinutes > calc('Beef', 'Packer Brisket', 13, 275).lowMinutes);
   assert.ok(calc('Pork', 'Pork Butt', 10, 225).lowMinutes > calc('Pork', 'Pork Butt', 6, 225).lowMinutes);
   assert.ok(calc('Poultry', 'Whole Turkey', 12, 225).lowMinutes > calc('Poultry', 'Whole Turkey', 12, 250).lowMinutes);
+});
+
+test('all brisket profiles estimate through 20 pounds with wider extrapolated windows', () => {
+  for (const [cut, baselineWeightMax] of [['Brisket Flat', 9], ['Brisket Point', 8], ['Packer Brisket', 18]]) {
+    const usual = calc('Beef', cut, baselineWeightMax, 250);
+    const large = calc('Beef', cut, 20, 250);
+    assert.equal(usual.status, 'estimated', cut);
+    assert.equal(usual.weightExtrapolated, false, cut);
+    assert.equal(large.status, 'estimated', cut);
+    assert.equal(large.weightExtrapolated, true, cut);
+    assert.ok((large.lowMinutes + large.highMinutes) / 2 > (usual.lowMinutes + usual.highMinutes) / 2, cut);
+    assert.equal(large.highMinutes - large.lowMinutes, 180, cut);
+  }
 });
 
 test('ribs and wings do not scale linearly with package weight', () => {
