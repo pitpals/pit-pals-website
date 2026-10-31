@@ -15,6 +15,7 @@ PAGES = {
     "/terms/": ROOT / "terms/index.html",
     "/community-guidelines/": ROOT / "community-guidelines/index.html",
     "/support/": ROOT / "support/index.html",
+    "/smoking-time-calculator/": ROOT / "smoking-time-calculator/index.html",
 }
 APP_STORE_URL = "https://apps.apple.com/us/app/pit-pals/id6781048336"
 
@@ -44,7 +45,7 @@ class PageParser(HTMLParser):
         elif tag == "h1":
             self.h1_count += 1
         elif tag == "script":
-            self.scripts.append({"type": attrs.get("type"), "content": ""})
+            self.scripts.append({"type": attrs.get("type"), "src": attrs.get("src"), "content": ""})
             self._json_script = attrs.get("type") == "application/ld+json"
 
     def handle_endtag(self, tag):
@@ -93,7 +94,11 @@ class SEOTests(unittest.TestCase):
                 self.assertEqual(page.h1_count, 1)
                 self.assertGreater(len(" ".join(page.text).strip()), 300)
                 self.assertFalse(any("noindex" in (item or "").lower() for item in page.value("name", "robots")))
-                self.assertTrue(all(script["type"] == "application/ld+json" for script in page.scripts))
+                self.assertTrue(all(script["type"] in ("application/ld+json", "module") for script in page.scripts))
+                if route == "/smoking-time-calculator/":
+                    self.assertEqual([script["src"] for script in page.scripts if script["type"] == "module"], ["../assets/smoke-time-calculator.js"])
+                else:
+                    self.assertFalse(any(script["type"] == "module" for script in page.scripts))
                 for anchor in page.anchors:
                     self.assertFalse(anchor.endswith("index.html"), anchor)
                     if anchor.startswith("/"):
@@ -134,6 +139,26 @@ class SEOTests(unittest.TestCase):
         self.assertEqual(schema["offers"]["price"], "0")
         self.assertNotIn("aggregateRating", schema)
         self.assertNotIn("review", schema)
+
+    def test_calculator_is_findable_and_mobile_ready(self):
+        home = parse_page(ROOT / "index.html")
+        tool = parse_page(ROOT / "smoking-time-calculator/index.html")
+        tool_html = (ROOT / "smoking-time-calculator/index.html").read_text()
+        css = (ROOT / "assets/calculator.css").read_text()
+        self.assertIn("/smoking-time-calculator/", home.anchors)
+        self.assertIn(APP_STORE_URL, tool.anchors)
+        self.assertIn("FoodSafety.gov", " ".join(tool.text))
+        self.assertIn("id=\"animal-carousel\"", tool_html)
+        self.assertIn("id=\"cut-carousel\"", tool_html)
+        self.assertNotIn("Game", tool_html)
+        self.assertIn("@media (max-width: 600px)", css)
+        self.assertTrue((ROOT / "assets/images/calculator/PP_Cut_Other.png").is_file())
+        self.assertEqual(len(list((ROOT / "assets/images/calculator").glob("PP_Animal_*.png"))), 5)
+        for route, path in PAGES.items():
+            html = path.read_text()
+            menu = html.split('<nav class="site-nav"', 1)[1].split('</nav>', 1)[0]
+            self.assertNotIn('href="/privacy/"', menu, route)
+            self.assertIn('href="/smoking-time-calculator/"', menu, route)
 
 
 if __name__ == "__main__":
