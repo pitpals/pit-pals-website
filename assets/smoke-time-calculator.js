@@ -28,7 +28,7 @@ const currentAnimal = () => ANIMALS[animalIndex];
 const currentCut = () => CUTS[currentAnimal()][cutIndex];
 const artwork = (kind, animal, cut) => {
   const name = kind === 'animal' ? `PP_Animal_${animal}` : `PP_Cut_${animal}_${cut.replace(/[^a-z0-9]/gi, '')}`;
-  return `../assets/images/calculator/${name}.png`;
+  return new URL(`./images/calculator/${name}.png`, import.meta.url).href;
 };
 
 function renderPicker(kind) {
@@ -52,7 +52,6 @@ function renderPicker(kind) {
     image.alt = '';
     image.width = 360;
     image.height = 360;
-    image.loading = 'lazy';
     button.append(image);
     const title = document.createElement('strong');
     title.textContent = label;
@@ -171,7 +170,9 @@ form.addEventListener('submit', event => {
     const list = document.createElement('ul');
     if (calculation.weightExtrapolated) {
       const item = document.createElement('li');
-      item.textContent = 'This weight is above the usual range for this brisket profile. The time is extrapolated and could vary by several hours.';
+      const [usualMin, usualMax] = calculation.typicalWeightRange;
+      const size = calculation.weight < usualMin ? 'below' : 'above';
+      item.textContent = `${calculation.weight} lb is ${size} the usual ${usualMin}–${usualMax} lb range for ${calculation.cut.toLowerCase()}. This estimate extends the weight profile. Size, shape, and preparation may shift the finish time.`;
       list.append(item);
     }
     for (const note of calculation.profile.notes) {
@@ -197,8 +198,8 @@ form.addEventListener('submit', event => {
     }
     details.append(sources);
   } else {
-    kicker.textContent = calculation.status === 'invalid' ? 'Check your inputs' : 'Estimate needs more detail';
-    value.textContent = calculation.status === 'invalid' ? 'Adjust your selection' : 'Use a cut-specific method';
+    kicker.textContent = 'Check your inputs';
+    value.textContent = 'Enter valid details';
     context.textContent = calculation.message;
     if (calculation.safety) details.append(detail('Food safety:', calculation.safety));
   }

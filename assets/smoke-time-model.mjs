@@ -178,17 +178,18 @@ export function calculateSmokeTime({animal, cut, weight, temperature}) {
   if (temperature === '' || !Number.isFinite(degrees) || degrees < SUPPORTED_PIT_RANGE[0] || degrees > SUPPORTED_PIT_RANGE[1]) return {status: 'invalid', message: 'Enter a smoker temperature from 225°F to 275°F.'};
   if (!info.profile) return {status: 'invalid', message: 'This cut has no estimate configured.'};
   const profile = info.profile;
-  if (pounds < profile.weight[0] || pounds > profile.weight[1]) return {status: 'unavailable', ...info, message: `This profile covers ${profile.weight[0]}–${profile.weight[1]} lb. Outside that range, use a cut-specific recipe and thermometer.`};
   const base = minutesAtTemperature(profile.anchors, degrees);
   // All accepted temperatures stay within the 225–275°F hot-smoking range.
   const center = base * Math.pow(pounds / profile.referenceWeight, profile.exponent);
   const roundedCenter = Math.round(center / 30) * 30;
-  const weightExtrapolated = Boolean(profile.baselineWeightMax && pounds > profile.baselineWeightMax);
-  const halfWidth = weightExtrapolated ? 90 : center < 180 ? 15 : 30;
+  const typicalWeightMax = profile.baselineWeightMax ?? profile.weight[1];
+  const weightExtrapolated = pounds < profile.weight[0] || pounds > typicalWeightMax;
+  const halfWidth = weightExtrapolated ? Math.max(90, Math.round(center * 0.2 / 30) * 30) : center < 180 ? 15 : 30;
   const lowMinutes = Math.max(15, roundedCenter - halfWidth);
   const highMinutes = roundedCenter + halfWidth;
   return {
     status: 'estimated', ...info, weight: pounds, temperature: degrees, weightExtrapolated,
+    typicalWeightRange: [profile.weight[0], typicalWeightMax],
     temperatureAdjustmentInferred: !profile.anchors.some(anchor => anchor[0] === degrees) &&
       (profile.anchors.length === 1 || degrees < profile.anchors[0][0] || degrees > profile.anchors[profile.anchors.length - 1][0]),
     lowMinutes, highMinutes,

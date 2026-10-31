@@ -1,8 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {existsSync} from 'node:fs';
 import {ANIMALS, CUTS, FOOD_SAFETY, SOURCES, calculateSmokeTime, formatMinutes, getProfile} from '../assets/smoke-time-model.mjs';
 
 const calc = (animal, cut, weight, temperature = 225) => calculateSmokeTime({animal, cut, weight, temperature});
+
+test('every picker option has an image beside the calculator module', () => {
+  const moduleUrl = new URL('../assets/smoke-time-calculator.js', import.meta.url);
+  for (const animal of ANIMALS) {
+    assert.ok(existsSync(new URL(`./images/calculator/PP_Animal_${animal}.png`, moduleUrl)), animal);
+    for (const cut of CUTS[animal]) {
+      const name = cut.replace(/[^a-z0-9]/gi, '');
+      assert.ok(existsSync(new URL(`./images/calculator/PP_Cut_${animal}_${name}.png`, moduleUrl)), `${animal}: ${cut}`);
+    }
+  }
+});
 
 test('five requested animals and current named cuts have profiles', () => {
   assert.deepEqual(ANIMALS, ['Beef', 'Pork', 'Poultry', 'Fish', 'Lamb']);
@@ -55,7 +67,7 @@ test('all brisket profiles estimate through 20 pounds with wider extrapolated wi
     assert.equal(large.status, 'estimated', cut);
     assert.equal(large.weightExtrapolated, true, cut);
     assert.ok((large.lowMinutes + large.highMinutes) / 2 > (usual.lowMinutes + usual.highMinutes) / 2, cut);
-    assert.equal(large.highMinutes - large.lowMinutes, 180, cut);
+    assert.ok(large.highMinutes - large.lowMinutes > usual.highMinutes - usual.lowMinutes, cut);
   }
 });
 
@@ -82,7 +94,25 @@ test('invalid and unsupported inputs are clear', () => {
   assert.equal(calc('Beef', 'Brisket Flat', 0).status, 'invalid');
   assert.equal(calc('Beef', 'Brisket Flat', 'bad').status, 'invalid');
   assert.equal(calc('Beef', 'Brisket Flat', 6, 300).status, 'invalid');
-  assert.equal(calc('Beef', 'Brisket Flat', 25).status, 'unavailable');
+  assert.equal(calc('Beef', 'Brisket Flat', 25).status, 'estimated');
+});
+
+test('unusual weights keep an estimate and the cut assumptions', () => {
+  const butt = calc('Pork', 'Pork Butt', 3.4, 250);
+  assert.equal(butt.status, 'estimated');
+  assert.equal(butt.weightExtrapolated, true);
+  assert.deepEqual(butt.typicalWeightRange, [5, 12]);
+  assert.ok(butt.highMinutes > butt.lowMinutes);
+  assert.ok(butt.profile.sources.length > 0);
+  for (const animal of ANIMALS) for (const cut of CUTS[animal]) {
+    const profile = getProfile(animal, cut);
+    for (const weight of [profile.weight[0] / 2, profile.weight[1] * 1.5]) {
+      const estimate = calc(animal, cut, weight, 250);
+      assert.equal(estimate.status, 'estimated', `${animal}: ${cut} at ${weight} lb`);
+      assert.equal(estimate.weightExtrapolated, true, `${animal}: ${cut}`);
+      assert.ok(estimate.highMinutes > estimate.lowMinutes, `${animal}: ${cut}`);
+    }
+  }
 });
 
 test('rounding and display stay useful', () => {
