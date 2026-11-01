@@ -59,6 +59,26 @@ test('weight and smoker temperature move a long cook appropriately', () => {
   assert.ok(calc('Poultry', 'Whole Turkey', 12, 225).lowMinutes > calc('Poultry', 'Whole Turkey', 12, 250).lowMinutes);
 });
 
+test('packer timing follows the published weight and temperature table', () => {
+  const supported = calc('Beef', 'Packer Brisket', 16, 250);
+  assert.deepEqual([supported.lowMinutes, supported.highMinutes, supported.averageMinutes], [900, 1080, 990]);
+  assert.equal(supported.averageKind, 'reference');
+  assert.deepEqual(supported.sourceKeys, ['packerChiles']);
+  const corroborated = calc('Beef', 'Packer Brisket', 13, 225);
+  assert.equal(corroborated.averageKind, 'sources');
+  assert.deepEqual(corroborated.sourceKeys, ['packerChiles', 'packerHey']);
+  const nearAnchor = calc('Beef', 'Packer Brisket', 13, 226);
+  assert.equal(nearAnchor.averageKind, 'modeled');
+  assert.equal(nearAnchor.temperatureAdjustmentInferred, true);
+  assert.ok(nearAnchor.highMinutes >= 1000);
+  const large = calc('Beef', 'Packer Brisket', 20, 250);
+  assert.equal(large.weightExtrapolated, true);
+  assert.equal(large.averageKind, 'modeled');
+  assert.ok(large.averageMinutes > supported.averageMinutes);
+  assert.ok(large.lowMinutes >= supported.lowMinutes);
+  assert.ok(large.highMinutes > supported.highMinutes);
+});
+
 test('all brisket profiles estimate through 20 pounds with wider extrapolated windows', () => {
   for (const [cut, baselineWeightMax] of [['Brisket Flat', 9], ['Brisket Point', 8], ['Packer Brisket', 18]]) {
     const usual = calc('Beef', cut, baselineWeightMax, 250);
@@ -116,6 +136,19 @@ test('unusual weights keep an estimate and the cut assumptions', () => {
   }
 });
 
+test('every cut returns an ordered estimate at each preset and a custom temperature', () => {
+  for (const animal of ANIMALS) for (const cut of CUTS[animal]) {
+    const weight = getProfile(animal, cut).referenceWeight;
+    for (const temperature of [225, 250, 262, 275]) {
+      const result = calc(animal, cut, weight, temperature);
+      assert.equal(result.status, 'estimated', `${animal} ${cut} at ${temperature}°F`);
+      assert.ok(result.lowMinutes <= result.averageMinutes && result.averageMinutes <= result.highMinutes,
+        `${animal} ${cut} at ${temperature}°F`);
+      assert.ok(result.sourceKeys.every(key => SOURCES[key]), `${animal} ${cut} at ${temperature}°F`);
+    }
+  }
+});
+
 test('published ranges and source averages use comparable original recipes', () => {
   for (const [name, guidance] of Object.entries(PUBLISHED_GUIDANCE)) {
     assert.ok(guidance.records.length > 0, name);
@@ -129,14 +162,14 @@ test('published ranges and source averages use comparable original recipes', () 
   assert.equal(catfish.averageKind, 'sources');
   assert.equal(catfish.lowMinutes, 45);
   assert.equal(catfish.highMinutes, 60);
-  assert.equal(catfish.averageMinutes, 60);
+  assert.equal(catfish.averageMinutes, 55);
   assert.equal(catfish.sourceKeys.length, 2);
   const shoulder = calc('Lamb', 'Shoulder', 4, 250);
   assert.equal(shoulder.averageKind, 'sources');
   assert.equal(shoulder.averageMinutes, 420);
   assert.equal(shoulder.display, '6H – 8H');
   const wings = calc('Poultry', 'Chicken Wings', 0.3, 275);
-  assert.equal(wings.averageMinutes, 90);
+  assert.equal(wings.averageMinutes, 95);
   assert.equal(wings.lowMinutes, 75);
   assert.equal(wings.highMinutes, 120);
 });
@@ -167,6 +200,7 @@ test('rounding and display stay useful without a manufactured one-hour window', 
   assert.equal(long.averageMinutes, 900);
   assert.equal(long.display, '12H – 18H');
   assert.equal(calc('Fish', 'Catfish', 1, 250).temperatureAdjustmentInferred, true);
+  assert.equal(calc('Beef', 'Brisket Point', 5, 237).temperatureAdjustmentInferred, true);
   assert.equal(calc('Beef', 'Brisket Flat', 6, 250).temperatureAdjustmentInferred, false);
 });
 
@@ -176,6 +210,8 @@ test('result card shows range and center without a repeated food-safety bullet',
   assert.match(page, /id="result-average"/);
   assert.match(page, /Typical Range/);
   assert.match(page, /Best Guess Average/);
+  assert.doesNotMatch(page, /id="result-evidence"/);
+  assert.doesNotMatch(script, /Single-source planning value/);
   assert.match(script, /Best Guess Average/);
   assert.match(script, /Does not include resting time/);
   assert.doesNotMatch(script, /'Reference Time'|'Planning Center'|cooking time only/);

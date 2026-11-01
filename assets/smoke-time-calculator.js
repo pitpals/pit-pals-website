@@ -23,7 +23,7 @@ const SOURCE_LABELS = {
   spareAmazing: 'AmazingRibs spare ribs', spareJeff: 'Smoking Meat spare ribs', spareHey: 'Hey Grill Hey spare ribs',
   wingsKingsford: 'Kingsford chicken wings', wingsJeff: 'Smoking Meat chicken wings',
   flatSBS: 'Smoked BBQ Source brisket flat', pointSBS: 'Smoked BBQ Source brisket point',
-  packerHey: 'Hey Grill Hey packer brisket', backRibsHey: 'Hey Grill Hey beef back ribs',
+  packerHey: 'Hey Grill Hey packer brisket', packerChiles: 'Chiles and Smoke packer brisket', backRibsHey: 'Hey Grill Hey beef back ribs',
   shortRibsHey: 'Hey Grill Hey beef short ribs', buttHey: 'Hey Grill Hey pork butt',
   tenderloinSBS: 'Smoked BBQ Source tenderloin', breastJeff: 'Smoking Meat chicken breast',
   thighHey: 'Hey Grill Hey chicken thighs', thighJeff: 'Smoking Meat chicken thighs',
@@ -176,11 +176,11 @@ form.addEventListener('submit', event => {
       calculation.method.replaceAll(`${sourceTemperature}°F`, `${calculation.temperature}°F`);
     details.append(detail('Assumed method:', methodAtSelection));
     if (calculation.averageKind === 'sources') {
-      details.append(detail('Estimate basis:', `The average uses the midpoint from each of ${calculation.sourceKeys.length} comparable published recipes. The range covers their full published times.`));
+      details.append(detail('Estimate basis:', 'Average of comparable published recipes. The range covers their reported cook times.'));
     } else if (calculation.averageKind === 'reference') {
-      details.append(detail('Estimate basis:', 'This timing comes from one published recipe at the stated method and smoker temperature. It is a reference, not a weight-adjusted prediction. More comparable sources are needed for a source average.'));
+      details.append(detail('Estimate basis:', 'Based on one published recipe for this cut and smoker temperature.'));
     } else {
-      details.append(detail('Estimate basis:', 'This is a broad planning model for the selected size and smoker temperature. Comparable published timings at these exact conditions are limited.'));
+      details.append(detail('Estimate basis:', 'A broader planning estimate for this cut, weight, and smoker temperature.'));
     }
     if (calculation.rangeKind === 'modeled' && calculation.profile.evidence === 'comparison') {
       details.append(detail('Evidence note:', 'This also uses a rough comparison with a related cut or general hot-smoking method. Check the cut early.'));
@@ -188,7 +188,7 @@ form.addEventListener('submit', event => {
       details.append(detail('Evidence note:', 'Adapted from a cited method with a different finish or pit schedule. The actual cook may vary more.'));
     }
     if (calculation.temperatureAdjustmentInferred) {
-      details.append(detail('Smoker temperature:', 'The time adjustment between the cited smoker temperatures is a planning heuristic, not a measured recipe time.'));
+      details.append(detail('Smoker temperature:', 'The adjustment from the stored smoker temperatures is a planning estimate, not a measured recipe time.'));
     }
     const heading = document.createElement('h4');
     heading.textContent = 'Key considerations that could change the estimate';

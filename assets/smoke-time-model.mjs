@@ -68,6 +68,7 @@ export const SOURCES = Object.freeze({
   flatSBS: 'https://www.smokedbbqsource.com/smoked-brisket-flat-recipe/',
   pointSBS: 'https://www.smokedbbqsource.com/how-to-smoke-a-brisket-point/',
   packerHey: 'https://heygrillhey.com/texas-style-smoked-beef-brisket/',
+  packerChiles: 'https://www.chilesandsmoke.com/smoked-brisket/',
   backRibsHey: 'https://heygrillhey.com/smoked-beef-back-ribs/',
   shortRibsHey: 'https://heygrillhey.com/smoked-beef-chuck-ribs/',
   buttHey: 'https://heygrillhey.com/simple-smoked-pulled-pork/',
@@ -97,7 +98,7 @@ const PROFILES = {
     'Back Ribs': {weight: [2, 6], referenceWeight: 4, exponent: 0, anchors: [[225, 360], [250, 300]], assumption: 'One trimmed beef back-rib rack, wrapped after the bark sets.', finish: ribFinish, rest: 'Rest 20–30 minutes.', notes: ['Back ribs have less meat above the bones than plate or short ribs. Rack thickness matters more than pounds.'], sources: ['beefRibs', 'safety']},
     'Brisket Flat': {weight: [3, 20], baselineWeightMax: 9, referenceWeight: 6, exponent: 0.55, anchors: [[225, 480], [250, 390], [275, 330]], assumption: 'One trimmed, relatively even flat. Wrap when the bark is set.', finish: brisketFinish, rest: 'Rest at least 1 hour. Allow 2 hours when planning your cook.', notes: ['The lean flat can dry out, especially at thin edges.', stall], sources: ['flat', 'brisket', 'point', 'safety']},
     'Brisket Point': {weight: [3, 20], baselineWeightMax: 8, referenceWeight: 5, exponent: 0.62, anchors: [[225, 540], [250, 450], [275, 390]], assumption: 'One separated, thick, well-marbled point. Wrap when the bark is set.', finish: brisketFinish, rest: 'Rest at least 1 hour.', notes: ['The thicker, fattier point may need longer rendering than a flat of similar weight.', stall], sources: ['point', 'brisket', 'brisketTraeger', 'safety']},
-    'Packer Brisket': {weight: [8, 20], baselineWeightMax: 18, referenceWeight: 13, exponent: 0.68, anchors: [[225, 720], [250, 600], [275, 510]], assumption: 'Whole trimmed packer with flat and point. Wrap when the bark is set.', finish: brisketFinish, rest: 'Rest at least 1 hour. Allow 2 to 3 hours for a large packer.', notes: ['The flat and point can finish differently. Probe both muscles.', stall], sources: ['brisket', 'brisketTraeger', 'point', 'safety']},
+    'Packer Brisket': {weight: [8, 20], baselineWeightMax: 18, referenceWeight: 13, exponent: 0.68, anchors: [[225, 900], [250, 780], [275, 660]], assumption: 'Whole trimmed packer with flat and point. Wrap when the bark is set.', finish: brisketFinish, rest: 'Rest at least 1 hour. Allow 2 to 3 hours for a large packer.', notes: ['The flat and point can finish differently. Probe both muscles.', stall], sources: ['packerChiles', 'packerHey', 'safety']},
     'Plate Ribs': {weight: [4, 10], referenceWeight: 7, exponent: 0.1, anchors: [[225, 480]], assumption: 'One meaty plate-rib rack, wrapped after about 5 hours at 225°F.', finish: 'Cook until very tender, commonly around 203–205°F.', rest: 'Rest 30–60 minutes.', notes: ['Large plate ribs have substantial meat and connective tissue. A stall is possible.', 'Rack thickness matters more than total pounds.'], sources: ['plateRibs', 'shortRibs', 'safety']},
     'Short Ribs': {weight: [2, 7], referenceWeight: 4, exponent: 0.15, anchors: [[225, 540]], assumption: 'English-cut bone-in chuck short ribs, not thin flanken slices.', finish: 'Cook until probe-tender, commonly around 200–205°F.', rest: 'Rest 20–30 minutes.', notes: ['Connective tissue and possible stalls matter more than weight alone.', 'Plate ribs use a separate profile.'], sources: ['shortRibs', 'safety']}
   },
@@ -197,9 +198,6 @@ export const PUBLISHED_GUIDANCE = Object.freeze({
   'Beef|Brisket Point': {temperature: 250, weight: [4, 6], method: 'One separated point, about 5 lb, smoked unwrapped to tenderness. Burnt ends are excluded.', records: [
     {source: 'pointSBS', min: 360, max: 480}
   ]},
-  'Beef|Packer Brisket': {temperature: 225, weight: [12, 14], method: 'One whole packer, about 12–14 lb, paper wrapped after the bark sets.', records: [
-    {source: 'packerHey', min: 720, max: 1080}
-  ]},
   'Beef|Short Ribs': {temperature: 250, method: 'One thick, bone-in chuck short-rib rack, smoked unwrapped.', records: [
     {source: 'shortRibsHey', min: 480, max: 600}
   ]},
@@ -268,7 +266,7 @@ function aggregateGuidance(guidance) {
   const records = guidance.records;
   const midpoints = records.map(record => (record.min + record.max) / 2);
   const average = midpoints.reduce((sum, midpoint) => sum + midpoint, 0) / midpoints.length;
-  const step = average < 120 ? 15 : 30;
+  const step = average < 360 ? 5 : 15;
   return {
     lowMinutes: Math.floor(Math.min(...records.map(record => record.min)) / step) * step,
     highMinutes: Math.ceil(Math.max(...records.map(record => record.max)) / step) * step,
@@ -292,6 +290,77 @@ function minutesAtTemperature(anchors, temperature) {
   return edgeMinutes * Math.pow(edgeTemperature / temperature, 1.4);
 }
 
+// Chiles and Smoke publishes steady-pit ranges for whole, paper-wrapped
+// packers by weight band at all three supported temperatures. These are one
+// source's planning ranges, not observed cook-time distributions.
+const PACKER_TIMES = Object.freeze([
+  {weight: [8, 10], times: {225: [600, 720], 250: [480, 600], 275: [420, 540]}},
+  {weight: [10, 12], times: {225: [720, 840], 250: [600, 720], 275: [480, 600]}},
+  {weight: [12, 14], times: {225: [840, 960], 250: [720, 840], 275: [600, 720]}},
+  {weight: [14, 16], times: {225: [960, 1080], 250: [840, 960], 275: [720, 840]}},
+  {weight: [16, 18], times: {225: [1080, 1200], 250: [900, 1080], 275: [780, 960]}}
+]);
+
+function packerTimesAtTemperature(times, temperature) {
+  if (times[temperature]) return times[temperature];
+  const lower = temperature < 250 ? 225 : 250;
+  const upper = lower + 25;
+  const fraction = (temperature - lower) / 25;
+  return times[lower].map((value, index) => value + (times[upper][index] - value) * fraction);
+}
+
+function calculatePackerBrisket(info, pounds, degrees) {
+  const profile = info.profile;
+  const weightExtrapolated = pounds < 8 || pounds > 18;
+  const band = PACKER_TIMES.find(({weight: [low, high]}, index) =>
+    pounds >= low && (pounds < high || (index === PACKER_TIMES.length - 1 && pounds <= high)));
+  const reference = band ?? (pounds < 8 ? PACKER_TIMES[0] : PACKER_TIMES.at(-1));
+  const exactTemperature = degrees === 225 || degrees === 250 || degrees === 275;
+  const times = band?.weight[0] === 12
+    ? {...reference.times, 225: [720, 1080]}
+    : reference.times;
+  const [publishedLow, publishedHigh] = packerTimesAtTemperature(times, degrees);
+  let lowMinutes;
+  let highMinutes;
+  let averageMinutes;
+  let averageKind;
+  let rangeKind;
+  let sourceKeys = ['packerChiles'];
+
+  if (band && exactTemperature) {
+    const [sourceLow, sourceHigh] = reference.times[degrees];
+    const records = [{source: 'packerChiles', min: sourceLow, max: sourceHigh}];
+    if (degrees === 225 && band.weight[0] === 12) {
+      records.push({source: 'packerHey', min: 720, max: 1080});
+    }
+    ({lowMinutes, highMinutes, averageMinutes, averageKind, sourceKeys} = aggregateGuidance({records}));
+    rangeKind = 'published';
+  } else {
+    const referenceWeight = (reference.weight[0] + reference.weight[1]) / 2;
+    const ratio = band ? 1 : pounds / referenceWeight;
+    const center = (publishedLow + publishedHigh) / 2 * ratio;
+    const step = center < 360 ? 5 : 15;
+    const widening = weightExtrapolated ? 0.2 : 0;
+    lowMinutes = Math.max(15, Math.floor(publishedLow * ratio * (1 - widening) / step) * step);
+    if (pounds > 18) lowMinutes = Math.ceil(Math.max(lowMinutes, publishedLow) / step) * step;
+    highMinutes = Math.ceil(publishedHigh * ratio * (1 + widening) / step) * step;
+    averageMinutes = Math.round(center / step) * step;
+    averageKind = 'modeled';
+    rangeKind = 'modeled';
+    if (band?.weight[0] === 12 && degrees < 250) sourceKeys.push('packerHey');
+  }
+
+  return {
+    status: 'estimated', ...info, weight: pounds, temperature: degrees,
+    weightExtrapolated, typicalWeightRange: [8, 18],
+    temperatureAdjustmentInferred: !exactTemperature,
+    lowMinutes, highMinutes, averageMinutes, averageKind, rangeKind,
+    method: profile.assumption, notes: profile.notes, sourceKeys,
+    guidanceWeight: band?.weight ?? null,
+    display: `${formatMinutes(lowMinutes)} – ${formatMinutes(highMinutes)}`
+  };
+}
+
 export function calculateSmokeTime({animal, cut, weight, temperature}) {
   const info = getCutInfo(animal, cut);
   if (!info) return {status: 'invalid', message: 'Choose an animal and one of its cuts.'};
@@ -300,6 +369,7 @@ export function calculateSmokeTime({animal, cut, weight, temperature}) {
   if (weight === '' || !Number.isFinite(pounds) || pounds <= 0) return {status: 'invalid', message: 'Enter a weight greater than zero in pounds.'};
   if (temperature === '' || !Number.isFinite(degrees) || degrees < SUPPORTED_PIT_RANGE[0] || degrees > SUPPORTED_PIT_RANGE[1]) return {status: 'invalid', message: 'Enter a smoker temperature from 225°F to 275°F.'};
   if (!info.profile) return {status: 'invalid', message: 'This cut has no estimate configured.'};
+  if (animal === 'Beef' && cut === 'Packer Brisket') return calculatePackerBrisket(info, pounds, degrees);
   const profile = info.profile;
   const typicalWeightMax = profile.baselineWeightMax ?? profile.weight[1];
   const weightExtrapolated = pounds < profile.weight[0] || pounds > typicalWeightMax;
@@ -320,7 +390,7 @@ export function calculateSmokeTime({animal, cut, weight, temperature}) {
   const base = minutesAtTemperature(profile.anchors, degrees);
   // All accepted temperatures stay within the 225–275°F hot-smoking range.
   const center = base * Math.pow(pounds / profile.referenceWeight, profile.exponent);
-  const step = center < 120 ? 15 : 30;
+  const step = center < 360 ? 5 : 15;
   const roundedCenter = Math.round(center / step) * step;
   // A modeled planning band is deliberately broader than the former ±30-minute
   // interval. It is not presented as a published range or a confidence interval.
@@ -330,8 +400,7 @@ export function calculateSmokeTime({animal, cut, weight, temperature}) {
   return {
     status: 'estimated', ...info, weight: pounds, temperature: degrees, weightExtrapolated,
     typicalWeightRange: [profile.weight[0], typicalWeightMax],
-    temperatureAdjustmentInferred: !profile.anchors.some(anchor => anchor[0] === degrees) &&
-      (profile.anchors.length === 1 || degrees < profile.anchors[0][0] || degrees > profile.anchors[profile.anchors.length - 1][0]),
+    temperatureAdjustmentInferred: !profile.anchors.some(anchor => anchor[0] === degrees),
     lowMinutes, highMinutes, averageMinutes: roundedCenter, averageKind: 'modeled', rangeKind: 'modeled',
     method: profile.assumption,
     notes: profile.notes,
