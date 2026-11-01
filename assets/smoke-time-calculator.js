@@ -1,12 +1,12 @@
-import { ANIMALS, CUTS, SOURCES, calculateSmokeTime, cutArtworkName, formatMinutes } from './smoke-time-model.mjs';
+import { ANIMALS, CUTS, SOURCES, calculateSmokeTime, cutArtworkName, formatMinutes } from './smoke-time-model.mjs?v=20261101b';
 
 const form = document.querySelector('#smoke-form');
 const result = document.querySelector('#result');
 const animalWindow = document.querySelector('#animal-window');
 const cutWindow = document.querySelector('#cut-window');
 const weightInput = document.querySelector('#weight');
-const temperatureInput = document.querySelector('#temperature');
-const temperatureChoice = document.querySelector('#temperature-choice');
+const temperatureSelect = document.querySelector('#temperature');
+const ASSET_VERSION = '20261101b';
 const SOURCE_LABELS = {
   flat: 'ThermoWorks flat guide', brisket: 'ThermoWorks brisket primer', point: 'Traeger flat vs. point',
   brisketTraeger: 'Traeger brisket guide', porkButt: 'ThermoWorks pork butt', porkTraeger: 'Traeger pulled pork',
@@ -41,7 +41,9 @@ const currentAnimal = () => ANIMALS[animalIndex];
 const currentCut = () => CUTS[currentAnimal()][cutIndex];
 const artwork = (kind, animal, cut) => {
   const name = kind === 'animal' ? `PP_Animal_${animal}` : `PP_Cut_${animal}_${cutArtworkName(cut)}`;
-  return new URL(`./images/calculator/${name}.png`, import.meta.url).href;
+  const url = new URL(`./images/calculator/${name}.png`, import.meta.url);
+  url.searchParams.set('v', ASSET_VERSION);
+  return url.href;
 };
 
 function renderPicker(kind) {
@@ -124,15 +126,8 @@ for (const kind of ['animal', 'cut']) {
   }, {passive: false});
 }
 
-temperatureChoice.addEventListener('change', () => {
-  const custom = temperatureChoice.value === 'custom';
-  temperatureInput.hidden = !custom;
-  if (!custom) temperatureInput.value = temperatureChoice.value;
-  if (custom) temperatureInput.focus();
-  result.hidden = true;
-});
+temperatureSelect.addEventListener('change', () => { result.hidden = true; });
 weightInput.addEventListener('input', () => { result.hidden = true; });
-temperatureInput.addEventListener('input', () => { result.hidden = true; });
 let mobileLayout = matchMedia('(max-width: 600px)').matches;
 addEventListener('resize', () => {
   const nowMobile = matchMedia('(max-width: 600px)').matches;
@@ -155,7 +150,7 @@ form.addEventListener('submit', event => {
   event.preventDefault();
   const calculation = calculateSmokeTime({
     animal: currentAnimal(), cut: currentCut(), weight: weightInput.value,
-    temperature: temperatureInput.value
+    temperature: temperatureSelect.value
   });
   const kicker = document.querySelector('#result-kicker');
   const value = document.querySelector('#result-value');
@@ -190,7 +185,9 @@ form.addEventListener('submit', event => {
       details.append(detail('Evidence note:', 'The cited recipe uses a different finish or pit schedule, so the cook may take longer.'));
     }
     if (calculation.temperatureAdjustmentInferred) {
-      details.append(detail('Smoker temperature:', 'Estimated from nearby researched temperatures.'));
+      details.append(detail('Smoker temperature:', calculation.temperature === 300
+        ? '300°F is extrapolated from the 275°F timing. Start checking early.'
+        : 'Estimated from nearby researched temperatures.'));
     }
     const heading = document.createElement('h4');
     heading.textContent = 'Key considerations that could change the estimate';

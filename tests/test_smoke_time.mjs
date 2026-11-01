@@ -23,14 +23,16 @@ test('five requested animals and current named cuts have profiles', () => {
   assert.equal(Object.values(CUTS).flat().length, 30);
   for (const cut of ['Duck Breast', 'Duck Thighs', 'Duck Wings']) assert.ok(!CUTS.Poultry.includes(cut));
   for (const cut of ['Haddock', 'Tilapia']) assert.ok(!CUTS.Fish.includes(cut));
-  for (const cut of ['Fully Cooked Ham', 'Pork Shoulder (Picnic)']) assert.ok(CUTS.Pork.includes(cut));
+  for (const cut of ['Chuck Roast', 'Plate Ribs', 'Short Ribs']) assert.ok(CUTS.Beef.includes(cut));
+  for (const cut of ['Ham', 'Pork Shoulder']) assert.ok(CUTS.Pork.includes(cut));
+  for (const cut of Object.values(CUTS).flat()) assert.doesNotMatch(cut, /[()]/);
   for (const animal of ANIMALS) for (const cut of CUTS[animal]) {
     assert.notEqual(cut, 'Other');
     const profile = getProfile(animal, cut);
     assert.ok(profile, `${animal}: ${cut}`);
     assert.ok(profile.sources.length > 0);
     assert.ok(profile.sources.every(key => SOURCES[key]));
-    assert.deepEqual(profile.temperatureRange, [225, 275]);
+    assert.deepEqual(profile.temperatureRange, [225, 300]);
     for (const copy of [profile.assumption, profile.finish, profile.rest, ...profile.notes]) {
       assert.doesNotMatch(copy, /[;—]/, `${animal}: ${cut}`);
     }
@@ -135,8 +137,8 @@ test('poultry, fish, pork and lamb guidance remains cut-specific and safe', () =
   assert.match(calc('Fish', 'Salmon', 1.5).profile.assumption, /hot-smoked/);
   assert.match(calc('Fish', 'Salmon', 1.5).safety, /145°F/);
   assert.match(calc('Pork', 'Pork Butt', 8).profile.finish, /USDA safety minimum is lower/);
-  assert.match(calc('Pork', 'Fully Cooked Ham', 7).profile.assumption, /fully cooked/);
-  assert.match(calc('Pork', 'Fully Cooked Ham', 7).safety, /Fresh ham/);
+  assert.match(calc('Pork', 'Ham', 7).profile.assumption, /fully cooked/);
+  assert.match(calc('Pork', 'Ham', 7).safety, /Fresh ham/);
   assert.match(calc('Lamb', 'Rack of Lamb', 2, 250).safety, /145°F/);
   assert.match(FOOD_SAFETY.beef, /3 minutes/);
 });
@@ -146,7 +148,8 @@ test('invalid and unsupported inputs are clear', () => {
   assert.equal(calc('Beef', 'Other', 3).status, 'invalid');
   assert.equal(calc('Beef', 'Brisket Flat', 0).status, 'invalid');
   assert.equal(calc('Beef', 'Brisket Flat', 'bad').status, 'invalid');
-  assert.equal(calc('Beef', 'Brisket Flat', 6, 300).status, 'invalid');
+  assert.equal(calc('Beef', 'Brisket Flat', 6, 300).status, 'estimated');
+  assert.equal(calc('Beef', 'Brisket Flat', 6, 301).status, 'invalid');
   assert.equal(calc('Beef', 'Brisket Flat', 25).status, 'estimated');
 });
 
@@ -174,10 +177,10 @@ test('unusual weights keep an estimate and the cut assumptions', () => {
   }
 });
 
-test('every cut returns an ordered estimate at each preset and a custom temperature', () => {
+test('every cut returns an ordered estimate at each preset, including modeled 300°F', () => {
   for (const animal of ANIMALS) for (const cut of CUTS[animal]) {
     const weight = getProfile(animal, cut).referenceWeight;
-    for (const temperature of [225, 250, 262, 275]) {
+    for (const temperature of [225, 250, 275, 300]) {
       const result = calc(animal, cut, weight, temperature);
       assert.equal(result.status, 'estimated', `${animal} ${cut} at ${temperature}°F`);
       assert.ok(result.lowMinutes <= result.averageMinutes && result.averageMinutes <= result.highMinutes,
@@ -190,6 +193,11 @@ test('every cut returns an ordered estimate at each preset and a custom temperat
       assert.ok(result.windowLowMinutes <= result.averageMinutes && result.averageMinutes <= result.windowHighMinutes,
         `${animal} ${cut} at ${temperature}°F`);
       assert.ok(result.windowHighMinutes - result.windowLowMinutes <= 120, `${animal} ${cut} at ${temperature}°F`);
+      if (temperature === 300) {
+        assert.equal(result.rangeKind, 'modeled', `${animal} ${cut} at 300°F`);
+        assert.ok(result.averageMinutes <= calc(animal, cut, weight, 275).averageMinutes,
+          `${animal} ${cut} gets slower at 300°F`);
+      }
     }
   }
 });
@@ -265,4 +273,7 @@ test('result card explains the finish window and omits a repeated food-safety bu
   assert.match(script, /Does not include resting time/);
   assert.doesNotMatch(script, /'Reference Time'|'Planning Center'|cooking time only/);
   assert.doesNotMatch(script, /detail\('Food safety:'/);
+  assert.match(page, /<option value="300">300°F<\/option>/);
+  assert.doesNotMatch(page, /<option value="custom">/);
+  assert.match(script, /averageValue\.textContent = formatMinutes\(calculation\.averageMinutes\)/);
 });

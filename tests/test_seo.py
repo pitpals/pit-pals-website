@@ -96,7 +96,7 @@ class SEOTests(unittest.TestCase):
                 self.assertFalse(any("noindex" in (item or "").lower() for item in page.value("name", "robots")))
                 self.assertTrue(all(script["type"] in ("application/ld+json", "module") for script in page.scripts))
                 if route == "/smoking-time-calculator/":
-                    self.assertEqual([script["src"] for script in page.scripts if script["type"] == "module"], ["../assets/smoke-time-calculator.js"])
+                    self.assertEqual([script["src"] for script in page.scripts if script["type"] == "module"], ["../assets/smoke-time-calculator.js?v=20261101b"])
                 else:
                     self.assertFalse(any(script["type"] == "module" for script in page.scripts))
                 for anchor in page.anchors:
@@ -150,6 +150,12 @@ class SEOTests(unittest.TestCase):
         self.assertIn("FoodSafety.gov", " ".join(tool.text))
         self.assertIn("id=\"animal-carousel\"", tool_html)
         self.assertIn("id=\"cut-carousel\"", tool_html)
+        self.assertIn('<option value="300">300°F</option>', tool_html)
+        self.assertNotIn('value="custom"', tool_html)
+        self.assertIn('href="../assets/calculator.css?v=20261101b"', tool_html)
+        self.assertIn('content="width=device-width, initial-scale=1"', tool_html)
+        self.assertIn('touch-action: manipulation', css)
+        self.assertIn('.calculator-faq { padding-bottom: 4rem; }', css)
         self.assertNotIn("Game", tool_html)
         self.assertIn("Choose an animal and cut, enter its weight and your smoker temperature, and receive an estimated total cook time for your next smoke.", tool_html)
         self.assertNotIn("Pit Pals field tools", tool_html)

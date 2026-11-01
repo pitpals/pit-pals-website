@@ -1,6 +1,6 @@
 # Smoke time calculator methodology
 
-This unpublished page covers 30 named cuts across beef, pork, poultry, fish, and lamb. Game and the free-form “Other” choice are intentionally excluded. Primarily grilled steaks are outside this smoker-only tool. Duck portions, haddock, and tilapia were removed because their timing relied on related-cut comparisons rather than direct, method-matched evidence.
+This page covers 30 named cuts across beef, pork, poultry, fish, and lamb. Picker labels match the Pit Pals app. Game and the free-form “Other” choice are intentionally excluded. Primarily grilled steaks are outside this smoker-only tool. Duck portions, haddock, and tilapia were removed because their timing relied on related-cut comparisons rather than direct, method-matched evidence.
 
 ## How the result is built
 
@@ -12,7 +12,7 @@ This unpublished page covers 30 named cuts across beef, pork, poultry, fish, and
 
 ## Method-matched corrections
 
-- **Packer brisket:** [Chiles and Smoke](https://www.chilesandsmoke.com/smoked-brisket/) supplies weight bands for 8–18 lb at 225°F, 250°F, and 275°F. The 12–14 lb band at 225°F is 14–16 hours. Broader [ThermoWorks brisket guidance](https://www.thermoworks.com/blogs/thermoblog/smoked-brisket-a-how-to-primer) informs the stall warning but is not blended into the table. Beyond 18 lb and between temperature columns, the estimate is modeled.
+- **Packer brisket:** [Chiles and Smoke](https://www.chilesandsmoke.com/smoked-brisket/) supplies weight bands for 8–18 lb at 225°F, 250°F, and 275°F. The 12–14 lb band at 225°F is 14–16 hours. Broader [ThermoWorks brisket guidance](https://www.thermoworks.com/blogs/thermoblog/smoked-brisket-a-how-to-primer) informs the stall warning but is not blended into the table. Beyond 18 lb, between temperature columns, and at the 300°F preset, the estimate is modeled.
 - **Brisket point:** The [Smoked BBQ Source recipe](https://www.smokedbbqsource.com/how-to-smoke-a-brisket-point/) smokes an approximately 5 lb point unwrapped at 250°F for 6–8 hours. The point profile and its exact recipe record now use that unwrapped method. The flat and packer keep their separate wrapping assumptions.
 - **Pork butt:** The default method wraps once bark is set, around 160°F. [Traeger's 250°F recipe](https://www.traeger.com/recipes/traeger-pulled-pork) gives 3–5 hours before wrapping and another 3–4 hours wrapped for a 6–9 lb butt. The 225°F value remains modeled, with a stall buffer. The prior 225°F unwrapped record is excluded from this wrapped method.
 - **Pork belly:** A [4 lb wrapped slab at 225°F](https://heygrillhey.com/bbq-smoked-pork-belly/) takes about eight hours. A [3 lb unwrapped slab at 275°F](https://www.traeger.com/recipes/smoked-pork-belly) takes roughly 3–3½ hours. These are separate exact-condition records. Estimates between them are marked as modeled because wrapping and temperature both differ.
@@ -20,10 +20,10 @@ This unpublished page covers 30 named cuts across beef, pork, poultry, fish, and
 - **Whole duck:** [Traeger's 5–6 lb duck recipe](https://www.traeger.com/recipes/roast-duck) takes 2½–3 hours at 225°F but stops at 160°F. The model adds a modest allowance for the [165°F poultry minimum](https://www.foodsafety.gov/food-safety-charts/safe-minimum-internal-temperatures). That allowance is an estimate, not a published recipe time.
 - **Salmon:** The default is a cured, air-dried fillet. [Traeger](https://www.traeger.com/learn/how-to-smoke-salmon) gives 3–4 hours at 225°F to 145°F for that method. The fast 275°F uncured record was removed because it is not comparable.
 - **Turkey wings:** [Traeger's 250°F guide](https://www.traeger.com/learn/turkey-wings) gives roughly two hours, sometimes longer for thick wings. Its [275°F recipe](https://www.traeger.com/recipes/bbq-turkey-wings) gives 1½–2 hours for joint-separated wings. These are separate anchors.
-- **Fully Cooked Ham:** The picker names the covered product explicitly. [FoodSafety.gov](https://www.foodsafety.gov/food-safety-charts/meat-poultry-charts) distinguishes a USDA-inspected precooked ham, which may be reheated to 140°F, from other precooked ham, which needs 165°F. Raw ham is outside this estimate.
+- **Ham:** The picker follows the app label. The estimate explicitly assumes a fully cooked packaged ham. [FoodSafety.gov](https://www.foodsafety.gov/food-safety-charts/meat-poultry-charts) distinguishes a USDA-inspected precooked ham, which may be reheated to 140°F, from other precooked ham, which needs 165°F. Raw ham is outside this estimate.
 
 ## Limits and future research
 
-Ribs, wings, and fish fillets depend more on thickness and shape than package pounds. [AmazingRibs](https://amazingribs.com/tested-recipes/pork-ribs-recipes/are-my-ribs-ready-yet/) emphasizes slab thickness and different baby-back and spare-rib timelines. Long brisket and shoulder cooks can finish hours outside a two-hour planning window because of stalls, wrapping, airflow, and weather. Custom smoker temperatures and unusual weights still return a ballpark with these limitations shown in the result.
+Ribs, wings, and fish fillets depend more on thickness and shape than package pounds. [AmazingRibs](https://amazingribs.com/tested-recipes/pork-ribs-recipes/are-my-ribs-ready-yet/) emphasizes slab thickness and different baby-back and spare-rib timelines. Long brisket and shoulder cooks can finish hours outside a two-hour planning window because of stalls, wrapping, airflow, and weather. The 300°F preset extrapolates from lower-temperature research where no direct recipe is available. Unusual weights still return a ballpark with these limitations shown in the result.
 
-The page includes a visible FAQ for common planning questions. No FAQ structured data is emitted while the page is unpublished. Before publication, remove the temporary Cloudflare redirect and recheck this model, the source links, and the live endpoint.
+The page includes a visible FAQ for common planning questions. No FAQ structured data is emitted. The calculator's CSS, JavaScript, model, and picker images use a versioned URL to keep mobile browsers from reusing stale code after a release.

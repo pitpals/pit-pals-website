@@ -24,8 +24,8 @@
     <meta name="apple-itunes-app" content="app-id=6781048336">
     <link rel="icon" href="../assets/images/favicon.png" type="image/png">
     <link rel="stylesheet" href="../assets/styles.css">
-    <link rel="stylesheet" href="../assets/calculator.css">
-    <script type="module" src="../assets/smoke-time-calculator.js" defer></script>
+    <link rel="stylesheet" href="../assets/calculator.css?v=20261101b">
+    <script type="module" src="../assets/smoke-time-calculator.js?v=20261101b" defer></script>
   </head>
   <body class="calculator-page">
     <a class="skip-link" href="#main-content">Skip to content</a>
@@ -81,13 +81,12 @@
             </div>
             <div>
               <label for="temperature">4. Smoker temp <span class="unit">(°F)</span></label>
-              <select id="temperature-choice" aria-label="Common smoker temperature">
+              <select id="temperature" name="temperature" aria-label="Smoker temperature in degrees Fahrenheit">
                 <option value="225">225°F</option>
                 <option value="250" selected>250°F</option>
                 <option value="275">275°F</option>
-                <option value="custom">Custom</option>
+                <option value="300">300°F</option>
               </select>
-              <input id="temperature" name="temperature" type="number" inputmode="numeric" min="225" max="275" step="1" value="250" aria-label="Smoker temperature in degrees Fahrenheit" required hidden>
             </div>
           </div>
           <button class="button button-primary calculate-button" type="submit">Calculate Smoke Time</button>
