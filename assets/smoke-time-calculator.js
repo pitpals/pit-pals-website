@@ -165,14 +165,12 @@ form.addEventListener('submit', event => {
   const details = document.querySelector('#result-details');
   details.replaceChildren();
   if (calculation.status === 'estimated') {
-    const pointReference = calculation.rangeKind === 'published' && calculation.lowMinutes === calculation.highMinutes;
-    kicker.textContent = pointReference ? 'Reference Time' : 'Typical Range';
+    kicker.textContent = 'Typical Range';
     value.textContent = calculation.display;
-    averageWrap.hidden = pointReference;
-    averageLabel.textContent = calculation.averageKind === 'sources' ? 'Average' :
-      calculation.averageKind === 'reference' ? 'Reference Time' : 'Planning Center';
+    averageWrap.hidden = false;
+    averageLabel.textContent = 'Best Guess Average';
     averageValue.textContent = formatMinutes(calculation.averageMinutes);
-    context.textContent = `${calculation.weight} lb ${calculation.cut.toLowerCase()} · ${calculation.temperature}°F smoker · cooking time only`;
+    context.textContent = `${calculation.weight} lb ${calculation.cut.toLowerCase()} · ${calculation.temperature}°F smoker · Does not include resting time`;
     const sourceTemperature = calculation.profile.anchors[0][0];
     const methodAtSelection = calculation.rangeKind === 'published' ? calculation.method :
       calculation.method.replaceAll(`${sourceTemperature}°F`, `${calculation.temperature}°F`);

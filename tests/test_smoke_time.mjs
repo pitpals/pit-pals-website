@@ -134,7 +134,7 @@ test('published ranges and source averages use comparable original recipes', () 
   const shoulder = calc('Lamb', 'Shoulder', 4, 250);
   assert.equal(shoulder.averageKind, 'sources');
   assert.equal(shoulder.averageMinutes, 420);
-  assert.equal(shoulder.display, '6h – 8h');
+  assert.equal(shoulder.display, '6H – 8H');
   const wings = calc('Poultry', 'Chicken Wings', 0.3, 275);
   assert.equal(wings.averageMinutes, 90);
   assert.equal(wings.lowMinutes, 75);
@@ -153,7 +153,7 @@ test('a single recipe stays a reference and unsupported conditions remain marked
   assert.equal(unusualWeight.averageKind, 'modeled');
   assert.equal(unusualWeight.weightExtrapolated, true);
   const pointOnly = calc('Poultry', 'Turkey Thighs', 1.6, 275);
-  assert.equal(pointOnly.display, 'About 3h');
+  assert.equal(pointOnly.display, 'About 3H');
   assert.equal(pointOnly.averageKind, 'reference');
 });
 
@@ -162,10 +162,10 @@ test('rounding and display stay useful without a manufactured one-hour window', 
   const short = calc('Poultry', 'Chicken Wings', 0.3, 225);
   assert.equal(long.highMinutes - long.lowMinutes, 360);
   assert.ok(short.highMinutes - short.lowMinutes >= 30);
-  assert.equal(formatMinutes(630), '10h 30m');
-  assert.equal(formatMinutes(60), '1h');
+  assert.equal(formatMinutes(630), '10H 30M');
+  assert.equal(formatMinutes(60), '1H');
   assert.equal(long.averageMinutes, 900);
-  assert.equal(long.display, '12h – 18h');
+  assert.equal(long.display, '12H – 18H');
   assert.equal(calc('Fish', 'Catfish', 1, 250).temperatureAdjustmentInferred, true);
   assert.equal(calc('Beef', 'Brisket Flat', 6, 250).temperatureAdjustmentInferred, false);
 });
@@ -175,7 +175,9 @@ test('result card shows range and center without a repeated food-safety bullet',
   const script = readFileSync(new URL('../assets/smoke-time-calculator.js', import.meta.url), 'utf8');
   assert.match(page, /id="result-average"/);
   assert.match(page, /Typical Range/);
-  assert.match(script, /'Average'/);
-  assert.match(script, /'Reference Time'/);
+  assert.match(page, /Best Guess Average/);
+  assert.match(script, /Best Guess Average/);
+  assert.match(script, /Does not include resting time/);
+  assert.doesNotMatch(script, /'Reference Time'|'Planning Center'|cooking time only/);
   assert.doesNotMatch(script, /detail\('Food safety:'/);
 });

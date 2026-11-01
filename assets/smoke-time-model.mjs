@@ -180,8 +180,8 @@ export function getCutInfo(animal, cut) {
 export function formatMinutes(minutes) {
   const hours = Math.floor(minutes / 60);
   const remainder = minutes % 60;
-  if (!hours) return `${remainder}m`;
-  return remainder ? `${hours}h ${remainder}m` : `${hours}h`;
+  if (!hours) return `${remainder}M`;
+  return remainder ? `${hours}H ${remainder}M` : `${hours}H`;
 }
 
 // Only records with the same cut, pit temperature, preparation and finish are
