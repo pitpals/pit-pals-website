@@ -46,6 +46,12 @@
 .calculator-explainer { max-width: 850px; padding-block: clamp(3rem, 6vw, 5rem); }
 .calculator-explainer h2 { font-size: clamp(1.8rem, 3vw, 2.5rem); }
 .calculator-explainer p { margin: 1rem 0 0; color: #241a14; }
+.calculator-faq { max-width: 850px; padding-bottom: clamp(3rem, 6vw, 5rem); }
+.calculator-faq h2 { margin-bottom: 1rem; font-size: clamp(1.8rem, 3vw, 2.5rem); }
+.calculator-faq details { border-top: 1px solid var(--border); padding: 1rem 0; }
+.calculator-faq details:last-child { border-bottom: 1px solid var(--border); }
+.calculator-faq summary { color: var(--text); font-weight: 800; cursor: pointer; }
+.calculator-faq details p { margin: .75rem 0 0; color: #241a14; }
 .calculator-cta { border-top: 1px solid var(--border); }
 @media (max-width: 600px) {
   .calculator-intro { padding-top: 2rem; }

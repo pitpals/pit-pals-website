@@ -1,4 +1,4 @@
-import { ANIMALS, CUTS, SOURCES, calculateSmokeTime, formatMinutes } from './smoke-time-model.mjs';
+import { ANIMALS, CUTS, SOURCES, calculateSmokeTime, cutArtworkName, formatMinutes } from './smoke-time-model.mjs';
 
 const form = document.querySelector('#smoke-form');
 const result = document.querySelector('#result');
@@ -18,7 +18,8 @@ const SOURCE_LABELS = {
   salmon: 'Traeger smoked salmon', trout: 'Traeger smoked trout', fishGeneral: 'Traeger fish guide',
   lambLeg: 'Hey Grill Hey lamb leg', lambShoulder: 'ThermoWorks lamb shoulder', lambRack: 'Traeger lamb rack',
   chuck: 'Traeger chuck roast', chuckPulled: 'Hey Grill Hey pulled chuck', eyeRound: 'Hey Grill Hey eye of round',
-  ham: 'Traeger ham guide', catfishKent: 'Kent Rollins catfish', catfishSmoker: 'Smoker Cooking catfish',
+  ham: 'Traeger ham guide', porkTraegerRecipe: 'Traeger wrapped pork butt', bellyTraeger: 'Traeger pork belly recipe',
+  catfishKent: 'Kent Rollins catfish', catfishSmoker: 'Smoker Cooking catfish',
   lambShoulderHey: 'Hey Grill Hey lamb shoulder', lambShoulderBoard: 'American Lamb Board shoulder',
   spareAmazing: 'AmazingRibs spare ribs', spareJeff: 'Smoking Meat spare ribs', spareHey: 'Hey Grill Hey spare ribs',
   wingsKingsford: 'Kingsford chicken wings', wingsJeff: 'Smoking Meat chicken wings',
@@ -39,7 +40,7 @@ const wrap = (index, length) => (index + length) % length;
 const currentAnimal = () => ANIMALS[animalIndex];
 const currentCut = () => CUTS[currentAnimal()][cutIndex];
 const artwork = (kind, animal, cut) => {
-  const name = kind === 'animal' ? `PP_Animal_${animal}` : `PP_Cut_${animal}_${cut.replace(/[^a-z0-9]/gi, '')}`;
+  const name = kind === 'animal' ? `PP_Animal_${animal}` : `PP_Cut_${animal}_${cutArtworkName(cut)}`;
   return new URL(`./images/calculator/${name}.png`, import.meta.url).href;
 };
 
@@ -163,9 +164,10 @@ form.addEventListener('submit', event => {
   const averageValue = document.querySelector('#result-average');
   const context = document.querySelector('#result-context');
   const details = document.querySelector('#result-details');
+  const reminder = result.querySelector('.result-reminder');
   details.replaceChildren();
   if (calculation.status === 'estimated') {
-    kicker.textContent = 'Typical Range';
+    kicker.textContent = 'Estimated Finish Window';
     value.textContent = calculation.display;
     averageWrap.hidden = false;
     averageLabel.textContent = 'Best Guess Average';
@@ -176,19 +178,19 @@ form.addEventListener('submit', event => {
       calculation.method.replaceAll(`${sourceTemperature}°F`, `${calculation.temperature}°F`);
     details.append(detail('Assumed method:', methodAtSelection));
     if (calculation.averageKind === 'sources') {
-      details.append(detail('Estimate basis:', 'Average of comparable published recipes. The range covers their reported cook times.'));
+      details.append(detail('Estimate basis:', 'Based on comparable published recipes for this cut.'));
     } else if (calculation.averageKind === 'reference') {
       details.append(detail('Estimate basis:', 'Based on one published recipe for this cut and smoker temperature.'));
     } else {
-      details.append(detail('Estimate basis:', 'A broader planning estimate for this cut, weight, and smoker temperature.'));
+      details.append(detail('Estimate basis:', 'Estimated from researched cut times, weight, and smoker temperature.'));
     }
     if (calculation.rangeKind === 'modeled' && calculation.profile.evidence === 'comparison') {
-      details.append(detail('Evidence note:', 'This also uses a rough comparison with a related cut or general hot-smoking method. Check the cut early.'));
+      details.append(detail('Evidence note:', 'This uses a related cut as a starting point. Check the cut early.'));
     } else if (calculation.rangeKind === 'modeled' && calculation.profile.evidence === 'adapted') {
-      details.append(detail('Evidence note:', 'Adapted from a cited method with a different finish or pit schedule. The actual cook may vary more.'));
+      details.append(detail('Evidence note:', 'The cited recipe uses a different finish or pit schedule, so the cook may take longer.'));
     }
     if (calculation.temperatureAdjustmentInferred) {
-      details.append(detail('Smoker temperature:', 'The adjustment from the stored smoker temperatures is a planning estimate, not a measured recipe time.'));
+      details.append(detail('Smoker temperature:', 'Estimated from nearby researched temperatures.'));
     }
     const heading = document.createElement('h4');
     heading.textContent = 'Key considerations that could change the estimate';
@@ -201,12 +203,15 @@ form.addEventListener('submit', event => {
       item.textContent = `${calculation.weight} lb is ${size} the usual ${usualMin}–${usualMax} lb range for ${calculation.cut.toLowerCase()}. This estimate extends the weight profile. Size, shape, and preparation may shift the finish time.`;
       list.append(item);
     }
-    for (const note of calculation.notes) {
+    for (const note of calculation.notes.slice(0, 3 - list.children.length)) {
       const item = document.createElement('li');
       item.textContent = note;
       list.append(item);
     }
     details.append(list);
+    reminder.textContent = calculation.windowNarrowed
+      ? 'This two-hour window is a planning target. Cooks can finish outside it, especially when a stall lasts for hours. Check doneness with a thermometer and a tenderness test.'
+      : 'This is a planning ballpark, not a promise. A thermometer and tenderness check determine doneness.';
     const finish = calculation.rangeKind === 'published' && calculation.cut === 'Chicken Thighs'
       ? 'The cited times aim for about 175°F in the thickest part, away from bone.'
       : calculation.rangeKind === 'published' && calculation.cut === 'Chicken Wings'

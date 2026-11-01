@@ -12,16 +12,28 @@ export const FOOD_SAFETY = Object.freeze({
 
 const APP_CUTS = Object.freeze({
   // The four traditionally grilled steak cuts are omitted from this smoker-only tool.
-  Beef: ['Back Ribs', 'Brisket Flat', 'Brisket Point', 'Chuck Roast', 'Eye of Round', 'Packer Brisket', 'Plate Ribs', 'Short Ribs'],
-  Pork: ['Baby Back Ribs', 'Spare Ribs', 'Ham', 'Pork Belly', 'Pork Butt', 'Pork Shoulder', 'Tenderloin'],
-  Poultry: ['Chicken Breast', 'Chicken Thighs', 'Chicken Wings', 'Whole Chicken', 'Turkey Breast', 'Turkey Thighs', 'Turkey Wings', 'Whole Turkey', 'Duck Breast', 'Duck Thighs', 'Duck Wings', 'Whole Duck'],
-  Fish: ['Catfish', 'Haddock', 'Salmon', 'Tilapia', 'Trout'],
+  Beef: ['Back Ribs', 'Brisket Flat', 'Brisket Point', 'Chuck Roast (Pulled Beef)', 'Eye of Round', 'Packer Brisket', 'Plate Short Ribs', 'Chuck Short Ribs'],
+  Pork: ['Baby Back Ribs', 'Spare Ribs', 'Fully Cooked Ham', 'Pork Belly', 'Pork Butt', 'Pork Shoulder (Picnic)', 'Tenderloin'],
+  Poultry: ['Chicken Breast', 'Chicken Thighs', 'Chicken Wings', 'Whole Chicken', 'Turkey Breast', 'Turkey Thighs', 'Turkey Wings', 'Whole Turkey', 'Whole Duck'],
+  Fish: ['Catfish', 'Salmon', 'Trout'],
   Lamb: ['Leg of Lamb', 'Rack of Lamb', 'Shoulder']
 });
 
 export const ANIMALS = Object.freeze(Object.keys(APP_CUTS));
 export const CUTS = APP_CUTS;
 export const SUPPORTED_PIT_RANGE = Object.freeze([225, 275]);
+
+const ARTWORK_ALIASES = Object.freeze({
+  'Chuck Roast (Pulled Beef)': 'Chuck Roast',
+  'Plate Short Ribs': 'Plate Ribs',
+  'Chuck Short Ribs': 'Short Ribs',
+  'Fully Cooked Ham': 'Ham',
+  'Pork Shoulder (Picnic)': 'Pork Shoulder'
+});
+
+export function cutArtworkName(cut) {
+  return (ARTWORK_ALIASES[cut] ?? cut).replace(/[^a-z0-9]/gi, '');
+}
 
 export const SOURCES = Object.freeze({
   safety: 'https://www.foodsafety.gov/food-safety-charts/safe-minimum-internal-temperatures',
@@ -31,11 +43,13 @@ export const SOURCES = Object.freeze({
   point: 'https://www.traeger.com/learn/brisket-flat-vs-point',
   porkButt: 'https://www.thermoworks.com/blogs/thermoblog/how-to-cook-bbq-pork-butt',
   porkTraeger: 'https://www.traeger.com/learn/pulled-pork',
+  porkTraegerRecipe: 'https://www.traeger.com/recipes/traeger-pulled-pork',
   ribs: 'https://www.traeger.com/learn/types-pork-ribs',
   beefRibs: 'https://www.traeger.com/learn/types-of-ribs',
   shortRibs: 'https://www.thermoworks.com/blogs/thermoblog/smoked-beef-short-ribs-temperature-is-a-recipe-for-success',
   plateRibs: 'https://www.traeger.com/cuts/beef/plate-short-ribs',
   belly: 'https://www.traeger.com/learn/pork-belly-vs-bacon',
+  bellyTraeger: 'https://www.traeger.com/recipes/smoked-pork-belly',
   tenderloin: 'https://www.traeger.com/pork-tenderloin',
   chicken: 'https://www.traeger.com/learn/how-to-smoke-whole-chicken',
   chickenBreast: 'https://www.traeger.com/recipes/smoked-chicken-breast',
@@ -97,22 +111,22 @@ const PROFILES = {
   Beef: {
     'Back Ribs': {weight: [2, 6], referenceWeight: 4, exponent: 0, anchors: [[225, 360], [250, 300]], assumption: 'One trimmed beef back-rib rack, wrapped after the bark sets.', finish: ribFinish, rest: 'Rest 20–30 minutes.', notes: ['Back ribs have less meat above the bones than plate or short ribs. Rack thickness matters more than pounds.'], sources: ['beefRibs', 'safety']},
     'Brisket Flat': {weight: [3, 20], baselineWeightMax: 9, referenceWeight: 6, exponent: 0.55, anchors: [[225, 480], [250, 390], [275, 330]], assumption: 'One trimmed, relatively even flat. Wrap when the bark is set.', finish: brisketFinish, rest: 'Rest at least 1 hour. Allow 2 hours when planning your cook.', notes: ['The lean flat can dry out, especially at thin edges.', stall], sources: ['flat', 'brisket', 'point', 'safety']},
-    'Brisket Point': {weight: [3, 20], baselineWeightMax: 8, referenceWeight: 5, exponent: 0.62, anchors: [[225, 540], [250, 450], [275, 390]], assumption: 'One separated, thick, well-marbled point. Wrap when the bark is set.', finish: brisketFinish, rest: 'Rest at least 1 hour.', notes: ['The thicker, fattier point may need longer rendering than a flat of similar weight.', stall], sources: ['point', 'brisket', 'brisketTraeger', 'safety']},
+    'Brisket Point': {weight: [3, 20], baselineWeightMax: 8, referenceWeight: 5, exponent: 0.62, anchors: [[225, 540], [250, 420], [275, 390]], assumption: 'One separated, thick, well-marbled point smoked unwrapped.', finish: brisketFinish, rest: 'Rest at least 1 hour.', notes: ['The thicker, fattier point may need longer rendering than a flat of similar weight.', stall], sources: ['pointSBS', 'brisket', 'safety']},
     'Packer Brisket': {weight: [8, 20], baselineWeightMax: 18, referenceWeight: 13, exponent: 0.68, anchors: [[225, 900], [250, 780], [275, 660]], assumption: 'Whole trimmed packer with flat and point. Wrap when the bark is set.', finish: brisketFinish, rest: 'Rest at least 1 hour. Allow 2 to 3 hours for a large packer.', notes: ['The flat and point can finish differently. Probe both muscles.', stall], sources: ['packerChiles', 'packerHey', 'safety']},
-    'Plate Ribs': {weight: [4, 10], referenceWeight: 7, exponent: 0.1, anchors: [[225, 480]], assumption: 'One meaty plate-rib rack, wrapped after about 5 hours at 225°F.', finish: 'Cook until very tender, commonly around 203–205°F.', rest: 'Rest 30–60 minutes.', notes: ['Large plate ribs have substantial meat and connective tissue. A stall is possible.', 'Rack thickness matters more than total pounds.'], sources: ['plateRibs', 'shortRibs', 'safety']},
-    'Short Ribs': {weight: [2, 7], referenceWeight: 4, exponent: 0.15, anchors: [[225, 540]], assumption: 'English-cut bone-in chuck short ribs, not thin flanken slices.', finish: 'Cook until probe-tender, commonly around 200–205°F.', rest: 'Rest 20–30 minutes.', notes: ['Connective tissue and possible stalls matter more than weight alone.', 'Plate ribs use a separate profile.'], sources: ['shortRibs', 'safety']}
+    'Plate Short Ribs': {weight: [4, 10], referenceWeight: 7, exponent: 0.1, anchors: [[225, 480]], assumption: 'One meaty plate-rib rack, wrapped after about 5 hours at 225°F.', finish: 'Cook until very tender, commonly around 203–205°F.', rest: 'Rest 30–60 minutes.', notes: ['Large plate ribs have substantial meat and connective tissue. A stall is possible.', 'Rack thickness matters more than total pounds.'], sources: ['plateRibs', 'shortRibs', 'safety']},
+    'Chuck Short Ribs': {weight: [2, 7], referenceWeight: 4, exponent: 0.15, anchors: [[225, 540]], assumption: 'English-cut bone-in chuck short ribs, not thin flanken slices.', finish: 'Cook until probe-tender, commonly around 200–205°F.', rest: 'Rest 20–30 minutes.', notes: ['Connective tissue and possible stalls matter more than weight alone.', 'Plate ribs use a separate profile.'], sources: ['shortRibs', 'safety']}
   },
   Pork: {
     'Baby Back Ribs': {weight: [1.5, 4], referenceWeight: 2.5, exponent: 0, anchors: [[225, 300], [250, 240]], assumption: 'One baby-back rack, wrapped after the bark sets.', finish: ribFinish, rest: 'Rest 10–15 minutes.', notes: ['Baby backs are smaller and usually cook faster than spare ribs.', 'Rack thickness matters more than total pounds.'], sources: ['ribs', 'safety']},
     'Spare Ribs': {weight: [2.5, 6], referenceWeight: 4, exponent: 0, anchors: [[225, 360], [250, 300]], assumption: 'One spare-rib rack, wrapped after the bark sets.', finish: ribFinish, rest: 'Rest 10–15 minutes.', notes: ['Spare ribs are typically larger and fattier than baby backs.', 'Rack thickness matters more than total pounds.'], sources: ['ribs', 'safety']},
-    'Pork Butt': {weight: [5, 12], referenceWeight: 8, exponent: 0.72, anchors: [[225, 720], [250, 600]], assumption: 'One whole butt for pulled pork. Wrap after the bark sets.', finish: 'For pulled pork, cook until probe-tender, commonly around 195–205°F. USDA safety minimum is lower.', rest: 'Rest at least 1 hour.', notes: ['The stall can add several hours. Plan a 2–4 hour scheduling buffer.', 'Bone-in and boneless shapes may cook differently.'], sources: ['porkButt', 'porkTraeger', 'safety']},
-    'Pork Shoulder': {weight: [5, 12], referenceWeight: 8, exponent: 0.78, anchors: [[225, 780], [250, 660]], assumption: 'One full shoulder/picnic roast for pulled pork. Wrap after the bark sets.', finish: 'For pulled pork, cook until probe-tender, commonly around 195–205°F. USDA safety minimum is lower.', rest: 'Rest at least 1 hour.', notes: ['A full shoulder differs in shape and skin/fat from a butt. The stall can add hours.', 'Bone-in and boneless shapes may cook differently. Plan a 2–4 hour buffer.'], sources: ['porkButt', 'porkTraeger', 'safety']},
-    'Pork Belly': {weight: [2, 5], referenceWeight: 3, exponent: 0.25, anchors: [[275, 195]], assumption: 'Skinless whole slab at 275°F for tender slices, not cubes or bacon.', finish: 'For tender slices, render to about 195–200°F. USDA safety minimum is 145°F with a 3-minute rest.', rest: 'Rest 10–15 minutes.', notes: ['Pull-apart texture or cubed burnt ends use a different method and time.'], sources: ['belly', 'safety']},
+    'Pork Butt': {weight: [5, 12], referenceWeight: 8, exponent: 0.72, anchors: [[225, 720], [250, 450]], assumption: 'One whole butt for pulled pork. Wrap after the bark sets, around 160°F.', finish: 'For pulled pork, cook until probe-tender, commonly around 195–205°F. USDA safety minimum is lower.', rest: 'Rest at least 1 hour.', notes: ['The stall can add several hours. Plan a 2–4 hour scheduling buffer.', 'Bone-in and boneless shapes may cook differently.'], sources: ['porkButt', 'porkTraegerRecipe', 'safety']},
+    'Pork Shoulder (Picnic)': {weight: [5, 12], referenceWeight: 8, exponent: 0.78, anchors: [[225, 780], [250, 660]], assumption: 'One full shoulder/picnic roast for pulled pork. Wrap after the bark sets.', finish: 'For pulled pork, cook until probe-tender, commonly around 195–205°F. USDA safety minimum is lower.', rest: 'Rest at least 1 hour.', notes: ['A picnic shoulder differs in shape and skin/fat from a butt. The stall can add hours.', 'Bone-in and boneless shapes may cook differently. Plan a 2–4 hour buffer.'], sources: ['porkButt', 'porkTraeger', 'safety'], evidence: 'comparison'},
+    'Pork Belly': {weight: [2, 5], referenceWeight: 3, exponent: 0.25, anchors: [[225, 450], [275, 195]], assumption: 'One skinless whole slab cooked to about 200°F for tender slices, not cubes or bacon.', finish: 'For tender slices, render to about 195–200°F. USDA safety minimum is 145°F with a 3-minute rest.', rest: 'Rest 10–15 minutes.', notes: ['The 225°F recipe wraps after 165°F. The 275°F recipe stays unwrapped. Times between them are rough because the methods differ.', 'Pull-apart texture or cubed burnt ends use a different method and time.'], sources: ['bellyHey', 'bellyTraeger', 'safety'], evidence: 'adapted'},
     'Tenderloin': {weight: [0.75, 2], referenceWeight: 1.25, exponent: 0.2, anchors: [[225, 150]], assumption: 'One intact pork tenderloin, not a thicker pork loin roast.', finish: 'Reach at least 145°F, then rest at least 3 minutes.', rest: 'Rest 5–10 minutes.', notes: ['Very lean. Probe early to avoid drying out.', 'Thickness matters more than the package weight.'], sources: ['tenderloin', 'safety']}
   },
   Poultry: {
-    'Chicken Breast': {weight: [0.3, 1.25], referenceWeight: 0.65, exponent: 0.15, anchors: [[225, 150]], assumption: 'One ordinary boneless breast, roughly 1–1½ inches thick. Weight is per piece.', finish: 'Reach 165°F in the thickest part.', rest: 'Rest 5–10 minutes.', notes: ['Thickness matters more than weight. Start checking early.', 'Higher heat can improve skin on skin-on portions.'], sources: ['chickenBreast', 'safety']},
-    'Whole Chicken': {weight: [3, 6], referenceWeight: 4.5, exponent: 0.45, anchors: [[225, 240]], assumption: 'One unstuffed whole chicken, not spatchcocked.', finish: 'Reach 165°F in the thickest part of the breast and thigh.', rest: 'Rest 10–15 minutes.', notes: ['At 225°F, skin may stay soft. A higher-heat finish changes the cook time.'], sources: ['chicken', 'safety']},
+    'Chicken Breast': {weight: [0.3, 1.25], referenceWeight: 0.65, exponent: 0.15, anchors: [[225, 150]], assumption: 'One ordinary boneless breast, roughly 1–1½ inches thick. Weight is per piece.', finish: 'Reach 165°F in the thickest part.', rest: 'Rest 5–10 minutes.', notes: ['The cited recipe cooks to 160°F. This estimate allows time to reach 165°F.', 'Thickness matters more than weight. Start checking early.'], sources: ['chickenBreast', 'safety'], evidence: 'adapted'},
+    'Whole Chicken': {weight: [3, 6], referenceWeight: 4.5, exponent: 0.45, anchors: [[225, 210]], assumption: 'One unstuffed whole chicken, not spatchcocked.', finish: 'Reach 165°F in the thickest part of the breast and thigh.', rest: 'Rest 10–15 minutes.', notes: ['At 225°F, skin may stay soft. A higher-heat finish changes the cook time.'], sources: ['chicken', 'safety']},
     'Turkey Breast': {weight: [4, 7], referenceWeight: 5.5, exponent: 0.2, anchors: [[225, 120]], assumption: 'One bone-in, brined turkey breast. Weight includes bone.', finish: 'Reach 165°F in the thickest part.', rest: 'Rest at least 15 minutes.', notes: ['Thickness, brining, and bone affect timing. Check early.', 'Higher heat can improve skin but changes this estimate.'], sources: ['turkeyBreast', 'safety']},
     'Whole Turkey': {weight: [8, 16], referenceWeight: 12, exponent: 0.9, anchors: [[225, 480], [250, 390]], assumption: 'One unstuffed whole turkey cooked at a steady smoker temperature.', finish: 'Reach 165°F in the thickest part of the breast and thigh.', rest: 'Rest 20–30 minutes.', notes: ['Plan extra time for weather and bird shape.', 'A 275°F finish can improve skin but changes this single-temperature estimate.'], sources: ['turkey', 'safety']}
   },
@@ -129,29 +143,24 @@ const PROFILES = {
 // standard preparation. Some use a related cut or a mixed-temperature recipe as
 // a comparison; that limitation is shown in the result rather than hidden.
 Object.assign(PROFILES.Beef, {
-  'Chuck Roast': {weight: [2.5, 6], referenceWeight: 4, exponent: 0.5, anchors: [[225, 570]], assumption: 'One thick chuck roast for pulled beef. Smoke, then cover in a pan through the stall while keeping the smoker near 225°F.', finish: 'Cook until probe-tender and shreddable, often 200–210°F.', rest: 'Rest at least 20 minutes.', notes: ['The cited pulled-beef method raises the pit from 225°F to 250°F. This single-temperature timing is a rough adaptation.', 'Braising liquid and wrapping can greatly change the stall and total time.'], sources: ['chuckPulled', 'chuck', 'safety'], evidence: 'adapted'},
+  'Chuck Roast (Pulled Beef)': {weight: [2.5, 6], referenceWeight: 4, exponent: 0.5, anchors: [[225, 570]], assumption: 'One thick chuck roast for pulled beef. Smoke, then cover in a pan through the stall while keeping the smoker near 225°F.', finish: 'Cook until probe-tender and shreddable, often 200–210°F.', rest: 'Rest at least 20 minutes.', notes: ['The cited pulled-beef method raises the pit from 225°F to 250°F. This single-temperature timing is a rough adaptation.', 'Braising liquid and wrapping can greatly change the stall and total time.'], sources: ['chuckPulled', 'chuck', 'safety'], evidence: 'adapted'},
   'Eye of Round': {weight: [2, 5], referenceWeight: 3, exponent: 0.35, anchors: [[225, 240]], assumption: 'One intact, lean eye-of-round roast smoked for thin sliced beef, without a separate sear.', finish: 'Reach at least 145°F and rest at least 3 minutes for the USDA minimum.', rest: 'Rest 10–15 minutes.', notes: ['This lean roast can dry out quickly. The cited recipe includes a sear and lower smoke pull temperature.', 'Shape and target doneness matter more than pounds alone.'], sources: ['eyeRound', 'safety'], evidence: 'adapted'}
 });
 
 Object.assign(PROFILES.Pork, {
-  Ham: {weight: [5, 10], referenceWeight: 7, exponent: 0.8, anchors: [[225, 150]], assumption: 'One fully cooked, USDA-inspected packaged half ham reheated at 225°F, not a fresh raw ham.', finish: 'Check the package: USDA-inspected fully cooked ham may be reheated to 140°F. Other fully cooked ham needs 165°F. Fresh ham needs 145°F plus a 3-minute rest.', rest: 'Rest 20 minutes.', notes: ['Fresh/uncooked ham is a different cook and this time does not apply.', 'A spiral cut, glaze, bone, and package instructions can change timing.'], sources: ['ham', 'safety'], evidence: 'direct'}
+  'Fully Cooked Ham': {weight: [5, 10], referenceWeight: 7, exponent: 0.8, anchors: [[225, 150]], assumption: 'One fully cooked, USDA-inspected packaged half ham reheated at 225°F, not a fresh raw ham.', finish: 'Check the package: USDA-inspected fully cooked ham may be reheated to 140°F. Other fully cooked ham needs 165°F. Fresh ham needs 145°F plus a 3-minute rest.', rest: 'Rest 20 minutes.', notes: ['Fresh/uncooked ham is a different cook and this time does not apply.', 'A spiral cut, glaze, bone, and package instructions can change timing.'], sources: ['ham', 'safety'], evidence: 'direct'}
 });
 
 Object.assign(PROFILES.Poultry, {
   'Chicken Thighs': {weight: [0.25, 1], referenceWeight: 0.5, exponent: 0.15, anchors: [[225, 150]], assumption: 'One bone-in, skin-on chicken thigh, roughly 1–1½ inches thick. Weight is per thigh.', finish: 'Reach at least 165°F at the thickest point, away from bone.', rest: 'Rest 5–10 minutes.', notes: ['This is a comparison with chicken portions, since thigh thickness and bone dominate time.', 'Dark meat may be preferred at a higher temperature for texture. Higher pit heat improves skin.'], sources: ['chicken', 'safety'], evidence: 'comparison'},
   'Chicken Wings': {weight: [0.15, 0.6], referenceWeight: 0.3, exponent: 0, anchors: [[225, 90]], assumption: 'One ordinary whole wing or separated flat/drumette, single layer on the grate. Weight is per wing.', finish: 'Reach at least 165°F at the thickest point.', rest: 'Rest 5 minutes.', notes: ['Wing size matters more than package weight.', 'A high-heat crisping step is optional and is outside this smoke-time estimate.'], sources: ['chickenWings', 'safety']},
-  'Duck Breast': {weight: [0.4, 1.25], referenceWeight: 0.75, exponent: 0.15, anchors: [[225, 150]], assumption: 'One skin-on domestic duck breast hot-smoked at 225°F without a separate sear.', finish: 'Reach at least 165°F for USDA poultry guidance.', rest: 'Rest 5–10 minutes.', notes: ['This is a rough comparison with poultry portions. Duck breast thickness and rendered skin are major variables.', 'Many duck recipes use a lower finish or a sear, which changes the timing.'], sources: ['duck', 'chickenBreast', 'safety'], evidence: 'comparison'},
-  'Duck Thighs': {weight: [0.3, 1], referenceWeight: 0.6, exponent: 0.15, anchors: [[225, 180]], assumption: 'One bone-in domestic duck thigh hot-smoked at 225°F.', finish: 'Reach at least 165°F at the thickest point, away from bone.', rest: 'Rest 10 minutes.', notes: ['This is a rough comparison with whole duck and chicken thighs. Bone, fat rendering, and thickness can move the finish.', 'A crisp-skin finish adds a separate high-heat step.'], sources: ['duck', 'chicken', 'safety'], evidence: 'comparison'},
-  'Duck Wings': {weight: [0.15, 0.6], referenceWeight: 0.3, exponent: 0, anchors: [[225, 120]], assumption: 'One domestic duck wing, single layer on the grate at 225°F. Weight is per wing.', finish: 'Reach at least 165°F at the thickest point.', rest: 'Rest 5 minutes.', notes: ['This is a rough comparison with chicken wings. Duck wing size and skin/fat change timing.', 'A crisp-skin finish adds a separate high-heat step.'], sources: ['duck', 'chickenWings', 'safety'], evidence: 'comparison'},
   'Turkey Thighs': {weight: [0.75, 2.5], referenceWeight: 1.5, exponent: 0.2, anchors: [[250, 240]], assumption: 'One bone-in turkey thigh at 250°F, uncured. Weight is per thigh.', finish: 'Reach at least 165°F at the thickest point, away from bone.', rest: 'Rest 10–15 minutes.', notes: ['This is a comparison with turkey legs. A cured leg recipe can take much longer.', 'Bone and thickness matter more than package weight.'], sources: ['turkeyLegs', 'turkeyThighs', 'safety'], evidence: 'comparison'},
   'Turkey Wings': {weight: [0.4, 1.5], referenceWeight: 0.8, exponent: 0.1, anchors: [[250, 120]], assumption: 'One ordinary turkey wing at 250°F, single layer on the grate. Weight is per wing.', finish: 'Reach at least 165°F at the thickest point.', rest: 'Rest 10 minutes.', notes: ['Large or unusually thick wings may take longer.', 'A baking sheet or covered pan changes the cook time and skin texture.'], sources: ['turkeyWings', 'safety']},
-  'Whole Duck': {weight: [4, 7], referenceWeight: 5.5, exponent: 0.35, anchors: [[225, 210]], assumption: 'One domestic whole duck, unstuffed, skin pricked for fat rendering.', finish: 'Reach at least 165°F in the thickest breast and thigh.', rest: 'Rest 20–30 minutes.', notes: ['The cited recipe stops at 160°F. This estimate allows extra time to reach USDA 165°F.', 'A high-heat skin finish changes the total time.'], sources: ['duck', 'safety'], evidence: 'adapted'}
+  'Whole Duck': {weight: [4, 7], referenceWeight: 5.5, exponent: 0.35, anchors: [[225, 195]], assumption: 'One domestic whole duck, unstuffed, skin pricked for fat rendering.', finish: 'Reach at least 165°F in the thickest breast and thigh.', rest: 'Rest 20–30 minutes.', notes: ['The cited recipe stops at 160°F. This estimate allows extra time to reach USDA 165°F.', 'A high-heat skin finish changes the total time.'], sources: ['duck', 'safety'], evidence: 'adapted'}
 });
 
 Object.assign(PROFILES.Fish, {
   Catfish: {weight: [0.3, 2], referenceWeight: 1, exponent: 0.1, anchors: [[225, 120]], assumption: 'One catfish fillet about ¾–1 inch thick, hot-smoked at 225°F. Not a whole fish.', finish: 'Reach 145°F in the thickest part.', rest: 'Serve or chill promptly.', notes: ['This is a rough fillet estimate within Traeger’s 1–3 hour hot-smoked fish guidance.', 'Fillet thickness, brining, and skin change the time.'], sources: ['fishGeneral', 'safety'], evidence: 'comparison'},
-  Haddock: {weight: [0.25, 1.5], referenceWeight: 0.75, exponent: 0.1, anchors: [[225, 90]], assumption: 'One thin haddock fillet about ½–¾ inch thick, hot-smoked at 225°F.', finish: 'Reach 145°F in the thickest part.', rest: 'Serve or chill promptly.', notes: ['This is a rough fillet estimate within Traeger’s 1–3 hour hot-smoked fish guidance.', 'A thicker fillet or whole fish can take longer. Thickness dominates weight.'], sources: ['fishGeneral', 'safety'], evidence: 'comparison'},
-  Tilapia: {weight: [0.2, 1.25], referenceWeight: 0.6, exponent: 0.1, anchors: [[225, 90]], assumption: 'One thin tilapia fillet about ½–¾ inch thick, hot-smoked at 225°F.', finish: 'Reach 145°F in the thickest part.', rest: 'Serve or chill promptly.', notes: ['This is a rough fillet estimate within Traeger’s 1–3 hour hot-smoked fish guidance.', 'Thick fillets and brining can move the finish. Check early.'], sources: ['fishGeneral', 'safety'], evidence: 'comparison'}
 });
 
 Object.assign(PROFILES.Lamb, {
@@ -172,7 +181,7 @@ export function getCutInfo(animal, cut) {
   const profile = getProfile(animal, cut);
   return {
     animal, cut, profile,
-    safety: animal === 'Pork' && cut === 'Ham'
+    safety: animal === 'Pork' && cut === 'Fully Cooked Ham'
       ? 'Fully cooked ham: reheat to 165°F, or 140°F if packaged in a USDA-inspected plant. Fresh ham: 145°F plus a 3-minute rest. Check the package.'
       : FOOD_SAFETY[animal.toLowerCase()]
   };
@@ -198,10 +207,10 @@ export const PUBLISHED_GUIDANCE = Object.freeze({
   'Beef|Brisket Point': {temperature: 250, weight: [4, 6], method: 'One separated point, about 5 lb, smoked unwrapped to tenderness. Burnt ends are excluded.', records: [
     {source: 'pointSBS', min: 360, max: 480}
   ]},
-  'Beef|Short Ribs': {temperature: 250, method: 'One thick, bone-in chuck short-rib rack, smoked unwrapped.', records: [
+  'Beef|Chuck Short Ribs': {temperature: 250, method: 'One thick, bone-in chuck short-rib rack, smoked unwrapped.', records: [
     {source: 'shortRibsHey', min: 480, max: 600}
   ]},
-  'Beef|Chuck Roast': {temperature: 225, weight: [3, 4], method: 'One chuck roast for pulled beef, cooked until shreddable.', notes: ['Braising liquid and wrapping can change the stall and total time.'], records: [
+  'Beef|Chuck Roast (Pulled Beef)': {temperature: 225, weight: [3, 4], method: 'One chuck roast for pulled beef, cooked until shreddable.', notes: ['Braising liquid and wrapping can change the stall and total time.'], records: [
     {source: 'chuckJeff', min: 480, max: 600}
   ]},
   'Pork|Spare Ribs': {temperature: 225, method: 'One ordinary spare-rib rack, smoked without a timed braise.', records: [
@@ -214,20 +223,20 @@ export const PUBLISHED_GUIDANCE = Object.freeze({
   'Pork|Baby Back Ribs': {temperature: 225, method: 'One ordinary baby-back rack, smoked unwrapped until tender.', records: [
     {source: 'babyAmazing', min: 180, max: 240}
   ]},
-  'Pork|Pork Butt': {temperature: 225, weight: [8, 10], method: 'One bone-in Boston butt, smoked unwrapped for pulled pork.', records: [
-    {source: 'buttHey', min: 900, max: 1200}
+  'Pork|Pork Butt': {temperature: 250, weight: [6, 9], method: 'One bone-in Boston butt, foil wrapped around 160°F and cooked to about 204°F for pulled pork.', records: [
+    {source: 'porkTraegerRecipe', min: 360, max: 540}
   ]},
-  'Pork|Pork Belly': {temperature: 225, weight: [3, 5], method: 'One whole skinless slab, about 4 lb, wrapped after 165°F and cooked to about 200°F.', records: [
+  'Pork|Pork Belly': {temperature: 225, weight: [4, 4], method: 'One whole skinless slab, about 4 lb, wrapped after 165°F and cooked to about 200°F.', records: [
     {source: 'bellyHey', min: 480, max: 480}
   ]},
-  'Pork|Ham': {temperature: 225, weight: [9, 10], method: 'One fully cooked, USDA-inspected spiral ham, about 10 lb, reheated to 140°F.', records: [
+  'Pork|Pork Belly|275': {temperature: 275, weight: [3, 3], method: 'One skinless whole pork belly slab, about 3 lb, smoked unwrapped to 200°F.', records: [
+    {source: 'bellyTraeger', min: 180, max: 210}
+  ]},
+  'Pork|Fully Cooked Ham': {temperature: 225, weight: [9, 10], method: 'One fully cooked, USDA-inspected spiral ham, about 10 lb, reheated to 140°F.', records: [
     {source: 'hamJeff', min: 180, max: 240}
   ]},
   'Pork|Tenderloin': {temperature: 250, weight: [0.75, 1.5], method: 'One intact pork tenderloin, about 1 lb, smoked to 145°F.', records: [
     {source: 'tenderloinSBS', min: 60, max: 75}
-  ]},
-  'Poultry|Chicken Breast': {temperature: 225, method: 'One boneless chicken breast of ordinary thickness, cooked to 165°F.', records: [
-    {source: 'breastJeff', min: 60, max: 90}
   ]},
   'Poultry|Chicken Thighs': {temperature: 275, method: 'One bone-in chicken thigh, cooked to about 175°F.', notes: ['Thigh thickness and bone placement affect the finish. Higher pit heat can improve the skin.'], records: [
     {source: 'thighHey', min: 45, max: 75},
@@ -240,14 +249,17 @@ export const PUBLISHED_GUIDANCE = Object.freeze({
   'Poultry|Turkey Wings': {temperature: 275, method: 'Joint-separated turkey wings, smoked to about 185°F.', records: [
     {source: 'turkeyWingsTraeger', min: 90, max: 120}
   ]},
+  'Poultry|Turkey Wings|250': {temperature: 250, method: 'Turkey wings cooked in a single layer until fully done.', notes: ['Thicker wings may need longer than two hours.'], records: [
+    {source: 'turkeyWings', min: 120, max: 120}
+  ]},
   'Poultry|Turkey Breast': {temperature: 275, weight: [4, 5], method: 'One boneless, skinless 4–5 lb turkey breast, cider brined and smoked to 165°F.', records: [
     {source: 'turkeyBreastHey', min: 180, max: 180}
   ]},
   'Poultry|Turkey Thighs': {temperature: 275, weight: [1.5, 1.75], method: 'One bone-in turkey thigh, about 1½–1¾ lb, smoked to 165°F.', records: [
     {source: 'turkeyThighDennis', min: 180, max: 180}
   ]},
-  'Fish|Salmon': {temperature: 275, weight: [0.4, 0.6], method: 'One uncured salmon fillet, about 8 oz, smoked to 145°F.', records: [
-    {source: 'salmonHey', min: 30, max: 45}
+  'Fish|Salmon': {temperature: 225, method: 'One cured, air-dried salmon fillet, hot smoked to 145°F.', records: [
+    {source: 'salmon', min: 180, max: 240}
   ]},
   'Fish|Trout': {temperature: 225, method: 'One trout fillet, hot smoked until opaque and checked at 145°F.', records: [
     {source: 'troutTraeger', min: 90, max: 120}
@@ -273,6 +285,24 @@ function aggregateGuidance(guidance) {
     averageMinutes: Math.round(average / step) * step,
     sourceKeys: records.map(record => record.source),
     averageKind: records.length > 1 ? 'sources' : 'reference'
+  };
+}
+
+// Keep the source or model bounds intact. The shorter visible interval is a
+// cook-planning window around the center, not a claim about all outcomes.
+function finishWindow(lowMinutes, highMinutes, averageMinutes) {
+  const windowNarrowed = highMinutes - lowMinutes > 120;
+  const windowLowMinutes = windowNarrowed
+    ? Math.max(lowMinutes, Math.min(averageMinutes - 60, highMinutes - 120))
+    : lowMinutes;
+  const windowHighMinutes = windowNarrowed ? windowLowMinutes + 120 : highMinutes;
+  return {
+    evidenceLowMinutes: lowMinutes,
+    evidenceHighMinutes: highMinutes,
+    windowLowMinutes, windowHighMinutes, windowNarrowed,
+    display: windowLowMinutes === windowHighMinutes
+      ? `About ${formatMinutes(averageMinutes)}`
+      : `${formatMinutes(windowLowMinutes)} – ${formatMinutes(windowHighMinutes)}`
   };
 }
 
@@ -316,38 +346,32 @@ function calculatePackerBrisket(info, pounds, degrees) {
     pounds >= low && (pounds < high || (index === PACKER_TIMES.length - 1 && pounds <= high)));
   const reference = band ?? (pounds < 8 ? PACKER_TIMES[0] : PACKER_TIMES.at(-1));
   const exactTemperature = degrees === 225 || degrees === 250 || degrees === 275;
-  const times = band?.weight[0] === 12
-    ? {...reference.times, 225: [720, 1080]}
-    : reference.times;
-  const [publishedLow, publishedHigh] = packerTimesAtTemperature(times, degrees);
+  const [publishedLow, publishedHigh] = packerTimesAtTemperature(reference.times, degrees);
   let lowMinutes;
   let highMinutes;
   let averageMinutes;
   let averageKind;
   let rangeKind;
-  let sourceKeys = ['packerChiles'];
+  const sourceKeys = ['packerChiles'];
 
   if (band && exactTemperature) {
     const [sourceLow, sourceHigh] = reference.times[degrees];
-    const records = [{source: 'packerChiles', min: sourceLow, max: sourceHigh}];
-    if (degrees === 225 && band.weight[0] === 12) {
-      records.push({source: 'packerHey', min: 720, max: 1080});
-    }
-    ({lowMinutes, highMinutes, averageMinutes, averageKind, sourceKeys} = aggregateGuidance({records}));
+    ({lowMinutes, highMinutes, averageMinutes, averageKind} = aggregateGuidance({
+      records: [{source: 'packerChiles', min: sourceLow, max: sourceHigh}]
+    }));
     rangeKind = 'published';
   } else {
     const referenceWeight = (reference.weight[0] + reference.weight[1]) / 2;
     const ratio = band ? 1 : pounds / referenceWeight;
-    const center = (publishedLow + publishedHigh) / 2 * ratio;
+    const center = Math.max(15, (publishedLow + publishedHigh) / 2 * ratio);
     const step = center < 360 ? 5 : 15;
     const widening = weightExtrapolated ? 0.2 : 0;
     lowMinutes = Math.max(15, Math.floor(publishedLow * ratio * (1 - widening) / step) * step);
     if (pounds > 18) lowMinutes = Math.ceil(Math.max(lowMinutes, publishedLow) / step) * step;
-    highMinutes = Math.ceil(publishedHigh * ratio * (1 + widening) / step) * step;
-    averageMinutes = Math.round(center / step) * step;
+    highMinutes = Math.max(lowMinutes + step, Math.ceil(publishedHigh * ratio * (1 + widening) / step) * step);
+    averageMinutes = Math.max(lowMinutes, Math.min(highMinutes, Math.round(center / step) * step));
     averageKind = 'modeled';
     rangeKind = 'modeled';
-    if (band?.weight[0] === 12 && degrees < 250) sourceKeys.push('packerHey');
   }
 
   return {
@@ -357,7 +381,7 @@ function calculatePackerBrisket(info, pounds, degrees) {
     lowMinutes, highMinutes, averageMinutes, averageKind, rangeKind,
     method: profile.assumption, notes: profile.notes, sourceKeys,
     guidanceWeight: band?.weight ?? null,
-    display: `${formatMinutes(lowMinutes)} – ${formatMinutes(highMinutes)}`
+    ...finishWindow(lowMinutes, highMinutes, averageMinutes)
   };
 }
 
@@ -382,21 +406,19 @@ export function calculateSmokeTime({animal, cut, weight, temperature}) {
       weightExtrapolated: false, typicalWeightRange: [profile.weight[0], typicalWeightMax],
       temperatureAdjustmentInferred: false, rangeKind: 'published',
       method: guidance.method, notes: guidance.notes ?? profile.notes, guidanceWeight: guidance.weight ?? null, ...published,
-      display: published.lowMinutes === published.highMinutes
-        ? `About ${formatMinutes(published.averageMinutes)}`
-        : `${formatMinutes(published.lowMinutes)} – ${formatMinutes(published.highMinutes)}`
+      ...finishWindow(published.lowMinutes, published.highMinutes, published.averageMinutes)
     };
   }
   const base = minutesAtTemperature(profile.anchors, degrees);
   // All accepted temperatures stay within the 225–275°F hot-smoking range.
   const center = base * Math.pow(pounds / profile.referenceWeight, profile.exponent);
   const step = center < 360 ? 5 : 15;
-  const roundedCenter = Math.round(center / step) * step;
+  const roundedCenter = Math.max(15, Math.round(center / step) * step);
   // A modeled planning band is deliberately broader than the former ±30-minute
   // interval. It is not presented as a published range or a confidence interval.
   const halfWidth = Math.max(weightExtrapolated ? 90 : step, Math.ceil(center * (weightExtrapolated ? 0.3 : 0.2) / step) * step);
   const lowMinutes = Math.max(15, roundedCenter - halfWidth);
-  const highMinutes = roundedCenter + halfWidth;
+  const highMinutes = Math.max(lowMinutes + step, roundedCenter + halfWidth);
   return {
     status: 'estimated', ...info, weight: pounds, temperature: degrees, weightExtrapolated,
     typicalWeightRange: [profile.weight[0], typicalWeightMax],
@@ -405,6 +427,6 @@ export function calculateSmokeTime({animal, cut, weight, temperature}) {
     method: profile.assumption,
     notes: profile.notes,
     sourceKeys: profile.sources.filter(key => key !== 'safety'),
-    display: `${formatMinutes(lowMinutes)} – ${formatMinutes(highMinutes)}`
+    ...finishWindow(lowMinutes, highMinutes, roundedCenter)
   };
 }
