@@ -95,8 +95,16 @@
         </form>
 
         <section id="result" class="calculator-result" aria-live="polite" aria-atomic="true" hidden>
-          <p class="result-kicker" id="result-kicker">Estimated Smoke Time</p>
-          <h3 id="result-value"></h3>
+          <div class="result-summary">
+            <div>
+              <p class="result-kicker" id="result-kicker">Typical Range</p>
+              <h3 id="result-value"></h3>
+            </div>
+            <div id="result-average-wrap">
+              <p class="result-kicker" id="result-average-label">Average</p>
+              <p class="result-average" id="result-average"></p>
+            </div>
+          </div>
           <p id="result-context" class="result-context"></p>
           <div id="result-details" class="result-details"></div>
           <p class="result-reminder">This is a planning ballpark, not a promise. A thermometer and tenderness check determine doneness.</p>

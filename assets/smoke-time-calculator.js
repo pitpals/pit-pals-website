@@ -1,4 +1,4 @@
-import { ANIMALS, CUTS, SOURCES, calculateSmokeTime } from './smoke-time-model.mjs';
+import { ANIMALS, CUTS, SOURCES, calculateSmokeTime, formatMinutes } from './smoke-time-model.mjs';
 
 const form = document.querySelector('#smoke-form');
 const result = document.querySelector('#result');
@@ -18,7 +18,19 @@ const SOURCE_LABELS = {
   salmon: 'Traeger smoked salmon', trout: 'Traeger smoked trout', fishGeneral: 'Traeger fish guide',
   lambLeg: 'Hey Grill Hey lamb leg', lambShoulder: 'ThermoWorks lamb shoulder', lambRack: 'Traeger lamb rack',
   chuck: 'Traeger chuck roast', chuckPulled: 'Hey Grill Hey pulled chuck', eyeRound: 'Hey Grill Hey eye of round',
-  ham: 'Traeger ham guide'
+  ham: 'Traeger ham guide', catfishKent: 'Kent Rollins catfish', catfishSmoker: 'Smoker Cooking catfish',
+  lambShoulderHey: 'Hey Grill Hey lamb shoulder', lambShoulderBoard: 'American Lamb Board shoulder',
+  spareAmazing: 'AmazingRibs spare ribs', spareJeff: 'Smoking Meat spare ribs', spareHey: 'Hey Grill Hey spare ribs',
+  wingsKingsford: 'Kingsford chicken wings', wingsJeff: 'Smoking Meat chicken wings',
+  flatSBS: 'Smoked BBQ Source brisket flat', pointSBS: 'Smoked BBQ Source brisket point',
+  packerHey: 'Hey Grill Hey packer brisket', backRibsHey: 'Hey Grill Hey beef back ribs',
+  shortRibsHey: 'Hey Grill Hey beef short ribs', buttHey: 'Hey Grill Hey pork butt',
+  tenderloinSBS: 'Smoked BBQ Source tenderloin', breastJeff: 'Smoking Meat chicken breast',
+  thighHey: 'Hey Grill Hey chicken thighs', thighJeff: 'Smoking Meat chicken thighs',
+  turkeyWingsTraeger: 'Traeger turkey wings', turkeyThighDennis: 'Ask Chef Dennis turkey thighs',
+  salmonHey: 'Hey Grill Hey salmon', troutTraeger: 'Traeger trout', chuckJeff: 'Smoking Meat chuck roast',
+  babyAmazing: 'AmazingRibs baby back ribs', bellyHey: 'Hey Grill Hey pork belly',
+  turkeyBreastHey: 'Hey Grill Hey turkey breast', hamJeff: 'Smoking Meat fully cooked ham'
 };
 let animalIndex = 0;
 let cutIndex = 1; // Brisket Flat is a familiar starting example.
@@ -146,20 +158,36 @@ form.addEventListener('submit', event => {
   });
   const kicker = document.querySelector('#result-kicker');
   const value = document.querySelector('#result-value');
+  const averageWrap = document.querySelector('#result-average-wrap');
+  const averageLabel = document.querySelector('#result-average-label');
+  const averageValue = document.querySelector('#result-average');
   const context = document.querySelector('#result-context');
   const details = document.querySelector('#result-details');
   details.replaceChildren();
   if (calculation.status === 'estimated') {
-    kicker.textContent = 'Estimated Smoke Time';
+    const pointReference = calculation.rangeKind === 'published' && calculation.lowMinutes === calculation.highMinutes;
+    kicker.textContent = pointReference ? 'Reference Time' : 'Typical Range';
     value.textContent = calculation.display;
+    averageWrap.hidden = pointReference;
+    averageLabel.textContent = calculation.averageKind === 'sources' ? 'Average' :
+      calculation.averageKind === 'reference' ? 'Reference Time' : 'Planning Center';
+    averageValue.textContent = formatMinutes(calculation.averageMinutes);
     context.textContent = `${calculation.weight} lb ${calculation.cut.toLowerCase()} · ${calculation.temperature}°F smoker · cooking time only`;
     const sourceTemperature = calculation.profile.anchors[0][0];
-    const methodAtSelection = calculation.profile.assumption.replaceAll(`${sourceTemperature}°F`, `${calculation.temperature}°F`);
+    const methodAtSelection = calculation.rangeKind === 'published' ? calculation.method :
+      calculation.method.replaceAll(`${sourceTemperature}°F`, `${calculation.temperature}°F`);
     details.append(detail('Assumed method:', methodAtSelection));
-    if (calculation.profile.evidence === 'comparison') {
-      details.append(detail('Estimate basis:', 'A rough comparison with a related cut or general hot-smoking method. Check the cut early.'));
-    } else if (calculation.profile.evidence === 'adapted') {
-      details.append(detail('Estimate basis:', 'Adapted from a cited method with a different finish or pit schedule. The actual cook may vary more.'));
+    if (calculation.averageKind === 'sources') {
+      details.append(detail('Estimate basis:', `The average uses the midpoint from each of ${calculation.sourceKeys.length} comparable published recipes. The range covers their full published times.`));
+    } else if (calculation.averageKind === 'reference') {
+      details.append(detail('Estimate basis:', 'This timing comes from one published recipe at the stated method and smoker temperature. It is a reference, not a weight-adjusted prediction. More comparable sources are needed for a source average.'));
+    } else {
+      details.append(detail('Estimate basis:', 'This is a broad planning model for the selected size and smoker temperature. Comparable published timings at these exact conditions are limited.'));
+    }
+    if (calculation.rangeKind === 'modeled' && calculation.profile.evidence === 'comparison') {
+      details.append(detail('Evidence note:', 'This also uses a rough comparison with a related cut or general hot-smoking method. Check the cut early.'));
+    } else if (calculation.rangeKind === 'modeled' && calculation.profile.evidence === 'adapted') {
+      details.append(detail('Evidence note:', 'Adapted from a cited method with a different finish or pit schedule. The actual cook may vary more.'));
     }
     if (calculation.temperatureAdjustmentInferred) {
       details.append(detail('Smoker temperature:', 'The time adjustment between the cited smoker temperatures is a planning heuristic, not a measured recipe time.'));
@@ -175,19 +203,25 @@ form.addEventListener('submit', event => {
       item.textContent = `${calculation.weight} lb is ${size} the usual ${usualMin}–${usualMax} lb range for ${calculation.cut.toLowerCase()}. This estimate extends the weight profile. Size, shape, and preparation may shift the finish time.`;
       list.append(item);
     }
-    for (const note of calculation.profile.notes) {
+    for (const note of calculation.notes) {
       const item = document.createElement('li');
       item.textContent = note;
       list.append(item);
     }
     details.append(list);
-    details.append(detail('Doneness:', calculation.profile.finish));
-    details.append(detail('Food safety:', calculation.safety));
+    const finish = calculation.rangeKind === 'published' && calculation.cut === 'Chicken Thighs'
+      ? 'The cited times aim for about 175°F in the thickest part, away from bone.'
+      : calculation.rangeKind === 'published' && calculation.cut === 'Chicken Wings'
+        ? 'The cited times aim for about 175°F in the thickest part.'
+        : calculation.rangeKind === 'published' && calculation.cut === 'Turkey Wings'
+          ? 'The cited recipe aims for about 185°F in the thickest part.'
+          : calculation.profile.finish;
+    details.append(detail('Doneness:', finish));
     details.append(detail('Rest, after cooking:', calculation.profile.rest));
     const sources = document.createElement('p');
     sources.className = 'result-sources';
     sources.append('Method references: ');
-    for (const [index, key] of calculation.profile.sources.filter(key => key !== 'safety').entries()) {
+    for (const [index, key] of calculation.sourceKeys.entries()) {
       if (index) sources.append(' · ');
       const anchor = document.createElement('a');
       anchor.href = SOURCES[key];
@@ -200,8 +234,8 @@ form.addEventListener('submit', event => {
   } else {
     kicker.textContent = 'Check your inputs';
     value.textContent = 'Enter valid details';
+    averageWrap.hidden = true;
     context.textContent = calculation.message;
-    if (calculation.safety) details.append(detail('Food safety:', calculation.safety));
   }
   result.hidden = false;
   result.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest'});

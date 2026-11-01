@@ -1,17 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {existsSync} from 'node:fs';
-import {ANIMALS, CUTS, FOOD_SAFETY, SOURCES, calculateSmokeTime, formatMinutes, getProfile} from '../assets/smoke-time-model.mjs';
+import {readdirSync, readFileSync} from 'node:fs';
+import {ANIMALS, CUTS, FOOD_SAFETY, PUBLISHED_GUIDANCE, SOURCES, calculateSmokeTime, formatMinutes, getProfile} from '../assets/smoke-time-model.mjs';
 
 const calc = (animal, cut, weight, temperature = 225) => calculateSmokeTime({animal, cut, weight, temperature});
 
 test('every picker option has an image beside the calculator module', () => {
   const moduleUrl = new URL('../assets/smoke-time-calculator.js', import.meta.url);
+  const files = new Set(readdirSync(new URL('./images/calculator/', moduleUrl)));
   for (const animal of ANIMALS) {
-    assert.ok(existsSync(new URL(`./images/calculator/PP_Animal_${animal}.png`, moduleUrl)), animal);
+    assert.ok(files.has(`PP_Animal_${animal}.png`), animal);
     for (const cut of CUTS[animal]) {
       const name = cut.replace(/[^a-z0-9]/gi, '');
-      assert.ok(existsSync(new URL(`./images/calculator/PP_Cut_${animal}_${name}.png`, moduleUrl)), `${animal}: ${cut}`);
+      assert.ok(files.has(`PP_Cut_${animal}_${name}.png`), `${animal}: ${cut}`);
     }
   }
 });
@@ -115,14 +116,66 @@ test('unusual weights keep an estimate and the cut assumptions', () => {
   }
 });
 
-test('rounding and display stay useful', () => {
+test('published ranges and source averages use comparable original recipes', () => {
+  for (const [name, guidance] of Object.entries(PUBLISHED_GUIDANCE)) {
+    assert.ok(guidance.records.length > 0, name);
+    const urls = guidance.records.map(record => SOURCES[record.source]);
+    assert.ok(urls.every(Boolean), name);
+    assert.equal(new Set(urls).size, urls.length, `${name} counts an original recipe twice`);
+    for (const copy of [guidance.method, ...(guidance.notes ?? [])]) assert.doesNotMatch(copy, /[;—]/, name);
+    for (const record of guidance.records) assert.ok(record.min > 0 && record.max >= record.min, name);
+  }
+  const catfish = calc('Fish', 'Catfish', 1, 225);
+  assert.equal(catfish.averageKind, 'sources');
+  assert.equal(catfish.lowMinutes, 45);
+  assert.equal(catfish.highMinutes, 60);
+  assert.equal(catfish.averageMinutes, 60);
+  assert.equal(catfish.sourceKeys.length, 2);
+  const shoulder = calc('Lamb', 'Shoulder', 4, 250);
+  assert.equal(shoulder.averageKind, 'sources');
+  assert.equal(shoulder.averageMinutes, 420);
+  assert.equal(shoulder.display, '6h – 8h');
+  const wings = calc('Poultry', 'Chicken Wings', 0.3, 275);
+  assert.equal(wings.averageMinutes, 90);
+  assert.equal(wings.lowMinutes, 75);
+  assert.equal(wings.highMinutes, 120);
+});
+
+test('a single recipe stays a reference and unsupported conditions remain marked as modeled', () => {
+  const point = calc('Beef', 'Brisket Point', 5, 250);
+  assert.equal(point.averageKind, 'reference');
+  assert.equal(point.averageMinutes, 420);
+  assert.deepEqual(point.sourceKeys, ['pointSBS']);
+  const otherTemperature = calc('Beef', 'Brisket Point', 5, 225);
+  assert.equal(otherTemperature.averageKind, 'modeled');
+  assert.equal(otherTemperature.rangeKind, 'modeled');
+  const unusualWeight = calc('Pork', 'Pork Butt', 3.4, 225);
+  assert.equal(unusualWeight.averageKind, 'modeled');
+  assert.equal(unusualWeight.weightExtrapolated, true);
+  const pointOnly = calc('Poultry', 'Turkey Thighs', 1.6, 275);
+  assert.equal(pointOnly.display, 'About 3h');
+  assert.equal(pointOnly.averageKind, 'reference');
+});
+
+test('rounding and display stay useful without a manufactured one-hour window', () => {
   const long = calc('Beef', 'Packer Brisket', 13, 225);
   const short = calc('Poultry', 'Chicken Wings', 0.3, 225);
-  assert.equal(long.highMinutes - long.lowMinutes, 60);
-  assert.equal(short.highMinutes - short.lowMinutes, 30);
+  assert.equal(long.highMinutes - long.lowMinutes, 360);
+  assert.ok(short.highMinutes - short.lowMinutes >= 30);
   assert.equal(formatMinutes(630), '10h 30m');
   assert.equal(formatMinutes(60), '1h');
-  assert.match(long.display, /^\d+h(?: 30m)? – \d+h(?: 30m)?$/);
+  assert.equal(long.averageMinutes, 900);
+  assert.equal(long.display, '12h – 18h');
   assert.equal(calc('Fish', 'Catfish', 1, 250).temperatureAdjustmentInferred, true);
   assert.equal(calc('Beef', 'Brisket Flat', 6, 250).temperatureAdjustmentInferred, false);
+});
+
+test('result card shows range and center without a repeated food-safety bullet', () => {
+  const page = readFileSync(new URL('../smoking-time-calculator/index.html', import.meta.url), 'utf8');
+  const script = readFileSync(new URL('../assets/smoke-time-calculator.js', import.meta.url), 'utf8');
+  assert.match(page, /id="result-average"/);
+  assert.match(page, /Typical Range/);
+  assert.match(script, /'Average'/);
+  assert.match(script, /'Reference Time'/);
+  assert.doesNotMatch(script, /detail\('Food safety:'/);
 });

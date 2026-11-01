@@ -1,6 +1,7 @@
 // Planning profiles for the five illustrated animals in the Pit Pals New Smoke UI.
-// Source and scope notes: docs/smoke-time-methodology.md. Times are synthesized
-// ballparks from cited recipes, not measured predictions or safety guarantees.
+// Source and scope notes: docs/smoke-time-methodology.md. Published records
+// take precedence at matched conditions. Other combinations use modeled
+// planning ballparks, not measured predictions or safety guarantees.
 export const FOOD_SAFETY = Object.freeze({
   beef: 'USDA minimum for whole-cut beef: 145°F, then rest at least 3 minutes.',
   pork: 'USDA minimum for whole-cut pork: 145°F, then rest at least 3 minutes.',
@@ -54,7 +55,35 @@ export const SOURCES = Object.freeze({
   duck: 'https://www.traeger.com/recipes/roast-duck',
   fishGeneral: 'https://www.traeger.com/grill-types/bbq-smokers',
   chuckPulled: 'https://heygrillhey.com/smoked-pulled-beef/',
-  turkeyLegs: 'https://www.traeger.com/learn/smoked-turkey-legs'
+  turkeyLegs: 'https://www.traeger.com/learn/smoked-turkey-legs',
+  catfishKent: 'https://kentrollins.com/blogs/fish/smoked-catfish',
+  catfishSmoker: 'https://www.smoker-cooking.com/easy-smoked-catfish.html',
+  lambShoulderHey: 'https://heygrillhey.com/smoked-lamb-shoulder/',
+  lambShoulderBoard: 'https://americanlamb.com/recipes/smoked-lamb-shoulder/',
+  spareAmazing: 'https://amazingribs.com/books/Amazing-Ribs-Made-Easy.pdf',
+  spareJeff: 'https://www.smoking-meat.com/smoking-times-and-temperatures-chart',
+  spareHey: 'https://heygrillhey.com/low-and-slow-smoked-spare-ribs/',
+  wingsKingsford: 'https://www.kingsford.com/recipes/smoked-chicken-wings/',
+  wingsJeff: 'https://www.smoking-meat.com/smoking-times-and-temperatures-chart',
+  flatSBS: 'https://www.smokedbbqsource.com/smoked-brisket-flat-recipe/',
+  pointSBS: 'https://www.smokedbbqsource.com/how-to-smoke-a-brisket-point/',
+  packerHey: 'https://heygrillhey.com/texas-style-smoked-beef-brisket/',
+  backRibsHey: 'https://heygrillhey.com/smoked-beef-back-ribs/',
+  shortRibsHey: 'https://heygrillhey.com/smoked-beef-chuck-ribs/',
+  buttHey: 'https://heygrillhey.com/simple-smoked-pulled-pork/',
+  tenderloinSBS: 'https://www.smokedbbqsource.com/smoked-pork-tenderloin/',
+  breastJeff: 'https://www.smoking-meat.com/smoking-times-and-temperatures-chart',
+  thighHey: 'https://heygrillhey.com/smoked-chicken-thighs/',
+  thighJeff: 'https://www.smoking-meat.com/smoking-times-and-temperatures-chart',
+  turkeyWingsTraeger: 'https://www.traeger.com/recipes/bbq-turkey-wings',
+  turkeyThighDennis: 'https://www.askchefdennis.com/smoked-turkey-thighs/',
+  salmonHey: 'https://heygrillhey.com/smoked-salmon-dip/',
+  troutTraeger: 'https://www.traeger.com/recipes/smoked-trout',
+  chuckJeff: 'https://www.smoking-meat.com/smoking-times-and-temperatures-chart',
+  babyAmazing: 'https://amazingribs.com/books/Amazing-Ribs-Made-Easy.pdf',
+  bellyHey: 'https://heygrillhey.com/bbq-smoked-pork-belly/',
+  turkeyBreastHey: 'https://heygrillhey.com/smoked-turkey-breast/',
+  hamJeff: 'https://www.smoking-meat.com/smoking-times-and-temperatures-chart'
 });
 
 const stall = 'A stall around 150–170°F can last hours. Wrapping may shorten it. Cooking unwrapped can take longer. Build in several extra hours.';
@@ -155,6 +184,100 @@ export function formatMinutes(minutes) {
   return remainder ? `${hours}h ${remainder}m` : `${hours}h`;
 }
 
+// Only records with the same cut, pit temperature, preparation and finish are
+// aggregated. Each entry is one original recipe, not a second citation to it.
+// These source ranges are cook time only and exclude rest and preparation.
+export const PUBLISHED_GUIDANCE = Object.freeze({
+  'Beef|Back Ribs': {temperature: 275, method: 'One beef back-rib rack, paper wrapped after the bark sets.', records: [
+    {source: 'backRibsHey', min: 240, max: 360}
+  ]},
+  'Beef|Brisket Flat': {temperature: 250, method: 'One trimmed brisket flat, paper wrapped after the bark sets. The recipe does not specify a reliable size band.', records: [
+    {source: 'flatSBS', min: 360, max: 480}
+  ]},
+  'Beef|Brisket Point': {temperature: 250, weight: [4, 6], method: 'One separated point, about 5 lb, smoked unwrapped to tenderness. Burnt ends are excluded.', records: [
+    {source: 'pointSBS', min: 360, max: 480}
+  ]},
+  'Beef|Packer Brisket': {temperature: 225, weight: [12, 14], method: 'One whole packer, about 12–14 lb, paper wrapped after the bark sets.', records: [
+    {source: 'packerHey', min: 720, max: 1080}
+  ]},
+  'Beef|Short Ribs': {temperature: 250, method: 'One thick, bone-in chuck short-rib rack, smoked unwrapped.', records: [
+    {source: 'shortRibsHey', min: 480, max: 600}
+  ]},
+  'Beef|Chuck Roast': {temperature: 225, weight: [3, 4], method: 'One chuck roast for pulled beef, cooked until shreddable.', notes: ['Braising liquid and wrapping can change the stall and total time.'], records: [
+    {source: 'chuckJeff', min: 480, max: 600}
+  ]},
+  'Pork|Spare Ribs': {temperature: 225, method: 'One ordinary spare-rib rack, smoked without a timed braise.', records: [
+    {source: 'spareAmazing', min: 300, max: 360},
+    {source: 'spareJeff', min: 360, max: 360}
+  ]},
+  'Pork|Spare Ribs|250': {temperature: 250, method: 'One spare-rib rack, smoked unwrapped until tender.', records: [
+    {source: 'spareHey', min: 270, max: 330}
+  ]},
+  'Pork|Baby Back Ribs': {temperature: 225, method: 'One ordinary baby-back rack, smoked unwrapped until tender.', records: [
+    {source: 'babyAmazing', min: 180, max: 240}
+  ]},
+  'Pork|Pork Butt': {temperature: 225, weight: [8, 10], method: 'One bone-in Boston butt, smoked unwrapped for pulled pork.', records: [
+    {source: 'buttHey', min: 900, max: 1200}
+  ]},
+  'Pork|Pork Belly': {temperature: 225, weight: [3, 5], method: 'One whole skinless slab, about 4 lb, wrapped after 165°F and cooked to about 200°F.', records: [
+    {source: 'bellyHey', min: 480, max: 480}
+  ]},
+  'Pork|Ham': {temperature: 225, weight: [9, 10], method: 'One fully cooked, USDA-inspected spiral ham, about 10 lb, reheated to 140°F.', records: [
+    {source: 'hamJeff', min: 180, max: 240}
+  ]},
+  'Pork|Tenderloin': {temperature: 250, weight: [0.75, 1.5], method: 'One intact pork tenderloin, about 1 lb, smoked to 145°F.', records: [
+    {source: 'tenderloinSBS', min: 60, max: 75}
+  ]},
+  'Poultry|Chicken Breast': {temperature: 225, method: 'One boneless chicken breast of ordinary thickness, cooked to 165°F.', records: [
+    {source: 'breastJeff', min: 60, max: 90}
+  ]},
+  'Poultry|Chicken Thighs': {temperature: 275, method: 'One bone-in chicken thigh, cooked to about 175°F.', notes: ['Thigh thickness and bone placement affect the finish. Higher pit heat can improve the skin.'], records: [
+    {source: 'thighHey', min: 45, max: 75},
+    {source: 'thighJeff', min: 120, max: 120}
+  ]},
+  'Poultry|Chicken Wings': {temperature: 275, method: 'Ordinary wings in a single layer, smoked to about 175°F without a separate crisping stage.', records: [
+    {source: 'wingsKingsford', min: 75, max: 90},
+    {source: 'wingsJeff', min: 90, max: 120}
+  ]},
+  'Poultry|Turkey Wings': {temperature: 275, method: 'Joint-separated turkey wings, smoked to about 185°F.', records: [
+    {source: 'turkeyWingsTraeger', min: 90, max: 120}
+  ]},
+  'Poultry|Turkey Breast': {temperature: 275, weight: [4, 5], method: 'One boneless, skinless 4–5 lb turkey breast, cider brined and smoked to 165°F.', records: [
+    {source: 'turkeyBreastHey', min: 180, max: 180}
+  ]},
+  'Poultry|Turkey Thighs': {temperature: 275, weight: [1.5, 1.75], method: 'One bone-in turkey thigh, about 1½–1¾ lb, smoked to 165°F.', records: [
+    {source: 'turkeyThighDennis', min: 180, max: 180}
+  ]},
+  'Fish|Salmon': {temperature: 275, weight: [0.4, 0.6], method: 'One uncured salmon fillet, about 8 oz, smoked to 145°F.', records: [
+    {source: 'salmonHey', min: 30, max: 45}
+  ]},
+  'Fish|Trout': {temperature: 225, method: 'One trout fillet, hot smoked until opaque and checked at 145°F.', records: [
+    {source: 'troutTraeger', min: 90, max: 120}
+  ]},
+  'Fish|Catfish': {temperature: 225, method: 'One catfish fillet, hot smoked until flaky and checked at 145°F.', notes: ['Fillet thickness, brining, and skin can change the time. Check early.'], records: [
+    {source: 'catfishKent', min: 45, max: 60},
+    {source: 'catfishSmoker', min: 45, max: 60}
+  ]},
+  'Lamb|Shoulder': {temperature: 250, weight: [3, 5], method: 'One bone-in lamb shoulder, paper wrapped after the bark sets, cooked until pull-apart tender.', notes: ['Shoulder shape and the stall can move the finish. Check several spots for tenderness.'], records: [
+    {source: 'lambShoulderHey', min: 360, max: 480},
+    {source: 'lambShoulderBoard', min: 360, max: 480}
+  ]}
+});
+
+function aggregateGuidance(guidance) {
+  const records = guidance.records;
+  const midpoints = records.map(record => (record.min + record.max) / 2);
+  const average = midpoints.reduce((sum, midpoint) => sum + midpoint, 0) / midpoints.length;
+  const step = average < 120 ? 15 : 30;
+  return {
+    lowMinutes: Math.floor(Math.min(...records.map(record => record.min)) / step) * step,
+    highMinutes: Math.ceil(Math.max(...records.map(record => record.max)) / step) * step,
+    averageMinutes: Math.round(average / step) * step,
+    sourceKeys: records.map(record => record.source),
+    averageKind: records.length > 1 ? 'sources' : 'reference'
+  };
+}
+
 function minutesAtTemperature(anchors, temperature) {
   // A bounded temperature adjustment for convenience; see methodology notes.
   if (anchors.length === 1) return anchors[0][1] * Math.pow(anchors[0][0] / temperature, 1.4);
@@ -178,13 +301,30 @@ export function calculateSmokeTime({animal, cut, weight, temperature}) {
   if (temperature === '' || !Number.isFinite(degrees) || degrees < SUPPORTED_PIT_RANGE[0] || degrees > SUPPORTED_PIT_RANGE[1]) return {status: 'invalid', message: 'Enter a smoker temperature from 225°F to 275°F.'};
   if (!info.profile) return {status: 'invalid', message: 'This cut has no estimate configured.'};
   const profile = info.profile;
+  const typicalWeightMax = profile.baselineWeightMax ?? profile.weight[1];
+  const weightExtrapolated = pounds < profile.weight[0] || pounds > typicalWeightMax;
+  const guidance = PUBLISHED_GUIDANCE[`${animal}|${cut}|${degrees}`] ?? PUBLISHED_GUIDANCE[`${animal}|${cut}`];
+  if (guidance && degrees === guidance.temperature && !weightExtrapolated &&
+      (!guidance.weight || (pounds >= guidance.weight[0] && pounds <= guidance.weight[1]))) {
+    const published = aggregateGuidance(guidance);
+    return {
+      status: 'estimated', ...info, weight: pounds, temperature: degrees,
+      weightExtrapolated: false, typicalWeightRange: [profile.weight[0], typicalWeightMax],
+      temperatureAdjustmentInferred: false, rangeKind: 'published',
+      method: guidance.method, notes: guidance.notes ?? profile.notes, guidanceWeight: guidance.weight ?? null, ...published,
+      display: published.lowMinutes === published.highMinutes
+        ? `About ${formatMinutes(published.averageMinutes)}`
+        : `${formatMinutes(published.lowMinutes)} – ${formatMinutes(published.highMinutes)}`
+    };
+  }
   const base = minutesAtTemperature(profile.anchors, degrees);
   // All accepted temperatures stay within the 225–275°F hot-smoking range.
   const center = base * Math.pow(pounds / profile.referenceWeight, profile.exponent);
-  const roundedCenter = Math.round(center / 30) * 30;
-  const typicalWeightMax = profile.baselineWeightMax ?? profile.weight[1];
-  const weightExtrapolated = pounds < profile.weight[0] || pounds > typicalWeightMax;
-  const halfWidth = weightExtrapolated ? Math.max(90, Math.round(center * 0.2 / 30) * 30) : center < 180 ? 15 : 30;
+  const step = center < 120 ? 15 : 30;
+  const roundedCenter = Math.round(center / step) * step;
+  // A modeled planning band is deliberately broader than the former ±30-minute
+  // interval. It is not presented as a published range or a confidence interval.
+  const halfWidth = Math.max(weightExtrapolated ? 90 : step, Math.ceil(center * (weightExtrapolated ? 0.3 : 0.2) / step) * step);
   const lowMinutes = Math.max(15, roundedCenter - halfWidth);
   const highMinutes = roundedCenter + halfWidth;
   return {
@@ -192,7 +332,10 @@ export function calculateSmokeTime({animal, cut, weight, temperature}) {
     typicalWeightRange: [profile.weight[0], typicalWeightMax],
     temperatureAdjustmentInferred: !profile.anchors.some(anchor => anchor[0] === degrees) &&
       (profile.anchors.length === 1 || degrees < profile.anchors[0][0] || degrees > profile.anchors[profile.anchors.length - 1][0]),
-    lowMinutes, highMinutes,
+    lowMinutes, highMinutes, averageMinutes: roundedCenter, averageKind: 'modeled', rangeKind: 'modeled',
+    method: profile.assumption,
+    notes: profile.notes,
+    sourceKeys: profile.sources.filter(key => key !== 'safety'),
     display: `${formatMinutes(lowMinutes)} – ${formatMinutes(highMinutes)}`
   };
 }

@@ -30,7 +30,11 @@
 .calculator-result { scroll-margin-top: 6rem; margin-top: 2rem; border: 1px solid rgba(217,93,34,.25); border-radius: 1rem; background: #f9efe4; padding: clamp(1.25rem, 3vw, 2rem); }
 .calculator-result[hidden] { display: none; }
 .result-kicker { margin: 0; color: var(--accent-dark); font-size: .82rem; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+.result-summary { display: flex; flex-wrap: wrap; align-items: end; gap: 1rem 3rem; }
+.result-summary > div { min-width: min(100%, 12rem); }
+.result-summary > div[hidden] { display: none; }
 .calculator-result h3 { max-width: none; margin: .3rem 0; color: var(--text); font-size: clamp(2.2rem, 5vw, 3.6rem); }
+.result-average { margin: .3rem 0; color: var(--text); font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; line-height: 1.15; }
 .result-context { margin: 0; color: var(--muted); }
 .result-details { margin-top: 1.25rem; border-top: 1px solid var(--border); padding-top: .7rem; }
 .result-details p { margin: .65rem 0; }

@@ -2,17 +2,22 @@
 
 This page uses five Pit Pals New Smoke animal categories and their named cuts. Game is intentionally excluded. Filet Mignon, New York Strip, Ribeye, and T-Bone are omitted because they are primarily grilled steaks and thickness plus a sear would matter more than the four available inputs. The free-form “Other” choice is also omitted because it supplies no cut shape or cooking method. Each listed cut has its own profile or an explicit comparison profile.
 
-## How the number is made
+## How the two numbers are made
 
-- Anchor minutes are planning assumptions derived from the cited cut recipes, sometimes adapting a recipe with a separate high-heat finish or using a related cut. An adapted or comparison result is identified on the page.
-- Weight adjustment is cut-specific: anchor minutes × (entered pounds ÷ reference pounds)^exponent. Ribs and wings use zero or near-zero exponents because thickness matters more than package weight.
-- Smoker temperatures are limited to 225–275°F. Between two anchors the tool interpolates. Outside a profile's cited anchor temperatures, but still within 225–275°F, it uses a bounded planning adjustment of (anchor temperature ÷ selected temperature)^1.4 and labels that adjustment as inferred. This temperature adjustment is a heuristic, not a recipe claim.
-- The center is rounded to 30 minutes. Medium and long cooks in the usual weight range show a one-hour-wide planning window. Cooks under three hours show a 30-minute window. Outside the usual weight range, the half-width is at least 90 minutes and grows to about 20% of the center for longer cooks. These are planning ranges, not confidence intervals. Stalls can add several hours.
-- Every named cut returns a ballpark for a positive weight and a smoker temperature from 225–275°F. The weight ranges below describe usual single-cut sizes, not hard limits. Outside those ranges, the model extends the weight curve and calls out the weight in the result. For portion cuts, the assumed method explains whether weight means one piece. Doneness always depends on a thermometer and, for collagen-rich cuts, tenderness.
-- Brisket flat, point, and packer estimates include weights up to 20 lb and beyond. Above their former profile limits of 9, 8, and 18 lb respectively, the model extends the weight curve. Very large separated flats or points are unusual, so shape and trimming may shift the finish by several hours.
-- Food-safety minimums come from [FoodSafety.gov](https://www.foodsafety.gov/food-safety-charts/safe-minimum-internal-temperatures). They are distinct from BBQ tenderness targets. The assumed ham is a fully cooked, USDA-inspected packaged half ham. Fresh ham and other fully cooked ham have different targets. The result explicitly states this.
+- A published guidance record stores one original recipe's cut, preparation, smoker temperature, time bounds and source. Records are combined only for comparable methods. The **Typical Range** is the envelope from the lowest published start to the highest published finish. The **Average** is the arithmetic mean of those recipes' midpoints. A recipe is counted once even if a second article repeats it.
+- The average is rounded to the nearest 15 minutes for cooks under two hours and the nearest 30 minutes for longer cooks. Range limits are rounded outward on the same grid. A point timing remains a point if it is the only published timing. These are published planning times, not an observed distribution of cooks.
+- When one comparable recipe is available, the card says **Reference Time**. Its range is the recipe's own range and is not claimed as a multi-source average. The source's size and preparation are shown where known. A reference is not adjusted to the entered weight.
+- Where the selected temperature or size lacks comparable published guidance, the card says **Planning Center**. This falls back to the existing cut-specific model and a wider planning band of about 20% on each side, or 30% for unusual weights. The model's temperature and weight adjustments are heuristic. The card identifies this basis so the modeled band is not mistaken for a measured or published range.
+- Every named cut still returns a ballpark for a positive weight and smoker temperature from 225–275°F. Unusual weights are called out rather than rejected. These cases need particular care because thickness, shape, trimming and stall behavior can dominate weight.
+- Cook time excludes preparation and resting. Doneness always depends on a thermometer and, for collagen-rich cuts, tenderness. [FoodSafety.gov](https://www.foodsafety.gov/food-safety-charts/safe-minimum-internal-temperatures) informs endpoint guidance, but the repeated food-safety line was removed from each result.
 
-## Cut-by-cut reference
+## Researched guidance at exact conditions
+
+The code's `PUBLISHED_GUIDANCE` table is the versioned source record. The attached November 1 research supplied the starting recipes. Additional independent sources were reviewed for catfish, lamb shoulder, spare ribs, chicken wings and chicken thighs. Those five cuts now have an Average at their matched smoker temperature. Eighteen other cut and temperature combinations have a single-recipe Reference Time. Other combinations use the marked Planning Center. Recipes with different wrap stages, endpoints or pit schedules were not blended into an average.
+
+## Cut-by-cut planning profiles
+
+The table below describes the fallback planning profiles. At an exact researched condition, the published record and method listed above take precedence.
 
 | Animal | Cut | Estimate | Usual weight and reference | Method and assumptions | Sources |
 | --- | --- | --- | --- | --- | --- |
