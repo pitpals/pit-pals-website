@@ -9,13 +9,12 @@ Static public website for Pit Pals, a barbecue-first app for planning, tracking,
 - Complete Terms of Service
 - Complete Community Guidelines
 - A functional Support page
+- A BBQ smoke time calculator at `/smoking-time-calculator/`
 - A custom 404 response so unknown URLs are not served as homepage duplicates
 - `robots.txt`, `sitemap.xml`, and Cloudflare Pages preview indexing headers
-- A shared stylesheet at `assets/styles.css`
+- A shared stylesheet at `assets/styles.css` and calculator-only styles at `assets/calculator.css`
 - An `assets/images/` folder for brand assets, favicons, screenshots, app imagery, and future App Store assets
-- No framework, build tool, analytics, or cookie banner
-
-The smoke time calculator remains saved on the `codex/smoke-time-calculator` branch while it is refined. It is absent from the published `main` branch.
+- No framework, build tool, analytics, or cookie banner; the calculator uses a small local JavaScript module
 
 ## App Store and Screenshots
 
@@ -27,6 +26,10 @@ The portrait images have 720px and 1080px-wide JPEG variants, with responsive
 `srcset` selection and lazy loading below the hero. Images retain their full
 proportions on desktop and mobile. `social-header.jpg` is the link-preview image.
 The original full-resolution PNG artwork is kept outside this repository.
+The calculator's animal and cut illustrations are resized copies of the
+current iOS app asset catalog; the app repository was not changed.
+The [calculator methodology](docs/smoke-time-methodology.md) lists every
+supported cut, its assumptions, and source links.
 
 Cloudflare Pages deploys the `main` branch automatically to https://pitpals.app.
 There is no build step. For local preview, run `python3 -m http.server 8765`
@@ -34,7 +37,7 @@ from the repository root and visit http://localhost:8765.
 
 ## SEO and indexing
 
-The five public pages are `/`, `/privacy/`, `/terms/`,
+The six public pages are `/`, `/smoking-time-calculator/`, `/privacy/`, `/terms/`,
 `/community-guidelines/`, and `/support/`. Each has its own canonical URL,
 title, description, and social preview metadata. The homepage contains
 `MobileApplication` JSON-LD based on the public App Store listing (free iOS
@@ -53,12 +56,12 @@ Run the static checks before opening a pull request:
 
 ```bash
 python3 -m unittest discover -s tests -v
+node --test tests/test_smoke_time.mjs
 git diff --check
 ```
 
 After a production deployment, check `https://pitpals.app/robots.txt`,
-`https://pitpals.app/sitemap.xml`, the canonical tags on all five pages,
-`https://pitpals.app/smoking-time-calculator/` (HTTP 404),
+`https://pitpals.app/sitemap.xml`, the canonical tags on all six pages,
 `https://pitpals.app/does-not-exist` (HTTP 404), and one Pages preview
 (`X-Robots-Tag: noindex`). Also review Cloudflare dashboard redirect, WAF,
 bot, and Access rules; those settings are not stored in this repository.
@@ -73,7 +76,7 @@ apex HTTPS URL to avoid duplicate hosts.
    domain in Cloudflare DNS, then verify ownership in Search Console. Keep the
    TXT record in place.
 3. Under **Sitemaps**, submit `https://pitpals.app/sitemap.xml` after the
-   production deployment and check that Google can fetch its five URLs.
+   production deployment and check that Google can fetch its six URLs.
 4. Use **URL Inspection** for the homepage and key pages to check the selected
    canonical, crawl access, and indexing status. Request indexing after the
    sitemap and page responses are correct. Monitor the **Pages** indexing
@@ -95,14 +98,24 @@ not performed by publishing this source branch.
     index.html
   support/
     index.html
+  smoking-time-calculator/
+    index.html
   404.html
   robots.txt
   sitemap.xml
   _headers
   assets/
     styles.css
+    calculator.css
+    smoke-time-model.mjs
+    smoke-time-calculator.js
+    images/
+      calculator/
   tests/
     test_seo.py
+    test_smoke_time.mjs
+  docs/
+    smoke-time-methodology.md
   README.md
 ```
 
